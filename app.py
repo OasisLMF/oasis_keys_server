@@ -2,7 +2,7 @@
 Flask application for Oasis keys service.
 
 Currently handles compressed/uncompressed POSTed data. 
-Processes the data sequentially - could be made multi-threaded.
+Processes the data sequentially - should be made multi-threaded.
 
 '''
 from ConfigParser import ConfigParser
@@ -82,7 +82,6 @@ def _check_content_type():
     if content_type != 'text/csv; charset=utf-8':
         raise Exception("Unsupported content type: ", content_type)
 
-
 def _is_gzipped():
     """
     Is the POST data gzipped?
@@ -129,7 +128,6 @@ def post_get_keys():
         response = Response(
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR)
     return response
-
 
 @oasis_log_utils.oasis_log()
 def process_csv(is_gzipped):

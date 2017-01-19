@@ -6,13 +6,14 @@ class BaseKeysLookup(object):
     Base implementation of model keys lookup logic.
     """
 
+    peril_id = oasis_utils.UNKNOWN_ID
+
     @oasis_log_utils.oasis_log()
     def init(self, keys_data_directory):
         """
         Initialise the static data required for the lookup.
         """
         pass
-
 
     @oasis_log_utils.oasis_log()
     def process_row(self, row, results):
@@ -43,14 +44,13 @@ class BaseKeysLookup(object):
                 'id': record['loc_id'],
                 'peril_id': oasis_utils.PERIL_ID_QUAKE,
                 'coverage': coverage_type,
-                'area_peril_id': ap_id,
+                'area_peril_id': self.peril_id,
                 'vulnerability_id': vul_id,
                 'message': "{} - {}".format(
                     area_peril_message, vulnerability_message),
                 'status': status
             }
             results.append(exposure_record)
-
 
     def _read_record(self, line):
         """
@@ -75,11 +75,9 @@ class BaseKeysLookup(object):
             'occtype': self._to_int(vals.pop()),
             'cntryscheme': vals.pop().strip(),
             'cntrycode': vals.pop().strip(),
-            'eqcv1val': self._to_float(vals.pop()),
-            'eqcv2val': self._to_float(vals.pop()),
-            'locfilerowlocator': self._to_int(vals.pop())
+            'cv1val': self._to_float(vals.pop()),
+            'cv2val': self._to_float(vals.pop()),
         }
-
 
     def _get_area_peril_id(self, record):
         """
@@ -87,13 +85,11 @@ class BaseKeysLookup(object):
         """
         return oasis_utils.UNKNOWN_ID, "Not implemented"
 
-
     def _get_vulnerability_id(self, record):
         """
         Get the vulnerability ID for a particular location record.
         """
         return oasis_utils.UNKNOWN_ID-1, "Not implemented"
-
 
     def _get_lookup_success(self, ap_id, vul_id):
         """
@@ -104,7 +100,6 @@ class BaseKeysLookup(object):
             status = oasis_utils.KEYS_STATUS_NOMATCH
         return status
 
-
     def _to_int(self, val):
         """
         Parse a string to int
@@ -112,7 +107,6 @@ class BaseKeysLookup(object):
         if val == 'n/a':
             return None
         return int(val)
-
 
     def _to_float(self, val):
         """

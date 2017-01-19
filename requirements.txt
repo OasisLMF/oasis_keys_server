@@ -1,2 +1,1 @@
 Flask==0.10.1
-flask_swagger==0.2.12
