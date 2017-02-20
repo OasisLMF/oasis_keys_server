@@ -10,6 +10,7 @@ import csv
 import inspect
 import io
 import json
+import math
 import os
 import sys
 import gzip
@@ -42,11 +43,11 @@ model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logging.getLogger().exception(
         "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY))
-    exit()
+    sys.exit(1)
 if not os.path.isfile(model_version_file):
     logging.getLogger().exception(
         "No model version file: {}".format(model_version_file))
-    exit()
+    sys.exit(1)
 with open(model_version_file) as f:
     (SUPPLIER, MODEL_NAME, MODEL_VERSION) = f.readline().split(",")
     MODEL_VERSION = MODEL_VERSION.rstrip()
@@ -59,7 +60,7 @@ try:
     keys_lookup.init(KEYS_DATA_DIRECTORY)
 except:
     logging.getLogger().exception("Error initializing lookup")
-    exit()
+    sys.exit(1)
 
 
 @oasis_log_utils.oasis_log()
@@ -142,7 +143,7 @@ def process_csv(is_gzipped):
 
     logging.getLogger().debug("Processing locations - csv")
 
-    results = list()
+    results = []
     reader = csv.reader(io.StringIO(data), delimiter=',')
 
     #Skip the header
@@ -150,8 +151,33 @@ def process_csv(is_gzipped):
     processed_count = 0
     for row in reader:
         keys_lookup.process_row(row, results)
-        processed_count = processed_count + 1
+        processed_count += 1
         if processed_count % 100 == 0:
             logging.info("Processed {} locations".format(processed_count))
 
+    apids = keys_lookup._get_area_peril_id_bulk(io.StringIO(data))
+
+    for i in range(len(apids)):
+        if not math.isnan(apids[i]):
+            apid = int(apids[i])
+            results[3*i]['area_peril_id'] = apid
+            results[3*i+1]['area_peril_id']= apid
+            results[3*i+2]['area_peril_id']= apid
+            results[3*i]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
+            results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
+            results[3*i+2]['status']= oasis_utils.KEYS_STATUS_SUCCESS
+        if results[3*i]['message'] == "AreaPerilID not implemented":
+            results[3*i]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+            results[3*i+1]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+            results[3*i+2]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+            results[3*i]['message'] = ""
+            results[3*i+1]['message'] = ""
+            results[3*i+2]['message'] = ""
+            results[3*i]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+            results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+            results[3*i+2]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+
     return results
+
+if __name__ == '__main__':
+    APP.run(debug=True, host='0.0.0.0', port=5000)
