@@ -38,28 +38,29 @@ PORT = CONFIG_PARSER.get('Default', 'PORT')
 KEYS_DATA_DIRECTORY = '/var/oasis/keys_data'
 
 # Load the keys data
-logging.getLogger().info("Starting load keys data.")
+logger = logger.getLogger()
+logger.info("Starting load keys data.")
 model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
-    logging.getLogger().exception(
+    logger.exception(
         "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY))
     sys.exit(1)
 if not os.path.isfile(model_version_file):
-    logging.getLogger().exception(
+    logger.exception(
         "No model version file: {}".format(model_version_file))
     sys.exit(1)
 with open(model_version_file) as f:
     (SUPPLIER, MODEL_NAME, MODEL_VERSION) = f.readline().split(",")
     MODEL_VERSION = MODEL_VERSION.rstrip()
-    logging.getLogger().info("Supplier: {}".format(SUPPLIER))
-    logging.getLogger().info("Model name: {}".format(MODEL_NAME))
-    logging.getLogger().info("Model version: {}".format(MODEL_VERSION))
+    logger.info("Supplier: {}".format(SUPPLIER))
+    logger.info("Model name: {}".format(MODEL_NAME))
+    logger.info("Model version: {}".format(MODEL_VERSION))
 
 try:
     keys_lookup = KeysLookup()
     keys_lookup.init(KEYS_DATA_DIRECTORY)
 except:
-    logging.getLogger().exception("Error initializing lookup")
+    logger.exception("Error initializing lookup")
     sys.exit(1)
 
 
@@ -125,7 +126,7 @@ def post_get_keys():
         if DO_GZIP_RESPONSE:
             response.headers['Content-Encoding'] = 'gzip'
     except:
-        logging.getLogger().exception("Error in post_lookup")
+        logger.exception("Error in post_lookup")
         response = Response(
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR)
     return response
@@ -141,22 +142,22 @@ def process_csv(is_gzipped):
     else:
         data = request.data.decode('utf-8')
 
-    logging.getLogger().debug("Processing locations - csv")
+    logger.debug("Processing locations - csv")
 
     results = []
     reader = csv.reader(io.StringIO(data), delimiter=',')
 
     #Skip the header
     next(reader)
-    processed_count = 0
     for row in reader:
         keys_lookup.process_row(row, results)
-        processed_count += 1
-        if processed_count % 100 == 0:
-            logging.info("Processed {} locations".format(processed_count))
+        #processed_count += 1
+        #if processed_count % 100 == 0:
+        #    logging.info("Processed {} locations".format(processed_count))
 
     apids = keys_lookup._get_area_peril_id_bulk(io.StringIO(data))
 
+    processed_count = 0
     for i in range(len(apids)):
         if not math.isnan(apids[i]):
             apid = int(apids[i])
@@ -166,17 +167,17 @@ def process_csv(is_gzipped):
             results[3*i]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
             results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
             results[3*i+2]['status']= oasis_utils.KEYS_STATUS_SUCCESS
-        if results[3*i]['message'] == "AreaPerilID not implemented":
-            results[3*i]['area_peril_id'] = oasis_utils.UNKNOWN_ID
-            results[3*i+1]['area_peril_id'] = oasis_utils.UNKNOWN_ID
-            results[3*i+2]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+        #if results[3*i]['message'] == "AreaPerilID not implemented":
+            #results[3*i]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+            #results[3*i+1]['area_peril_id'] = oasis_utils.UNKNOWN_ID
+            #results[3*i+2]['area_peril_id'] = oasis_utils.UNKNOWN_ID
             results[3*i]['message'] = ""
             results[3*i+1]['message'] = ""
             results[3*i+2]['message'] = ""
-            results[3*i]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
-            results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
-            results[3*i+2]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
-
+            #results[3*i]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+            #results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+            #results[3*i+2]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
+    logger.info('### post bulk area peril id results={}'.format(results))
     return results
 
 if __name__ == '__main__':
