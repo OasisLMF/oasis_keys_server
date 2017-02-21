@@ -38,7 +38,7 @@ PORT = CONFIG_PARSER.get('Default', 'PORT')
 KEYS_DATA_DIRECTORY = '/var/oasis/keys_data'
 
 # Load the keys data
-logger = logger.getLogger()
+logger = logging.getLogger()
 logger.info("Starting load keys data.")
 model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
