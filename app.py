@@ -35,7 +35,7 @@ oasis_log_utils.read_log_config(CONFIG_PARSER)
 
 DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
 PORT = CONFIG_PARSER.get('Default', 'PORT')
-KEYS_DATA_DIRECTORY = '/var/oasis/keys_data'
+KEYS_DATA_DIRECTORY = os.path.join('/', 'var', 'oasis', 'keys_data')
 
 # Load the keys data
 logger = logging.getLogger('Rotating log')
@@ -58,7 +58,7 @@ with open(model_version_file) as f:
 
 try:
     logging.info('Initialising keys lookup service.')
-    keys_lookup = KeysLookup()
+    keys_lookup = KeysLookup(keys_data_directory=KEYS_DATA_DIRECTORY)
 except:
     logger.exception("Error initializing keys lookup service.")
     sys.exit(1)
