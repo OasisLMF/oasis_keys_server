@@ -1,4 +1,4 @@
-﻿'''
+'''
 Flask application for Oasis keys service.
 
 Currently handles compressed/uncompressed POSTed data. 
@@ -38,8 +38,8 @@ PORT = CONFIG_PARSER.get('Default', 'PORT')
 KEYS_DATA_DIRECTORY = '/var/oasis/keys_data'
 
 # Load the keys data
-logger = logging.getLogger()
-logger.info("Starting load keys data.")
+logger = logging.getLogger('Rotating log')
+logger.info("Starting keys server app.")
 model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
@@ -57,10 +57,10 @@ with open(model_version_file) as f:
     logger.info("Model version: {}".format(MODEL_VERSION))
 
 try:
+    logging.info('Initialising keys lookup service.')
     keys_lookup = KeysLookup()
-    keys_lookup.init(KEYS_DATA_DIRECTORY)
 except:
-    logger.exception("Error initializing lookup")
+    logger.exception("Error initializing keys lookup service.")
     sys.exit(1)
 
 
@@ -150,7 +150,10 @@ def process_csv(is_gzipped):
     #Skip the header
     next(reader)
     for row in reader:
-        keys_lookup.process_row(row, results)
+        if row:
+            keys_lookup.process_row(row, results)
+        else:
+            break
         #processed_count += 1
         #if processed_count % 100 == 0:
         #    logging.info("Processed {} locations".format(processed_count))
