@@ -23,8 +23,10 @@ from oasis_utils import oasis_utils, oasis_log_utils
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+# Get the Flask app
 APP = Flask(__name__)
 
+# Load keys server config settings
 CONFIG_PARSER = ConfigParser()
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
@@ -33,13 +35,16 @@ CONFIG_PARSER.read(INI_PATH)
 # Logging configuration
 oasis_log_utils.read_log_config(CONFIG_PARSER)
 
+# Set Gzip response settings and keys data directory path
 DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
 PORT = CONFIG_PARSER.get('Default', 'PORT')
 KEYS_DATA_DIRECTORY = os.path.join('/', 'var', 'oasis', 'keys_data')
 
-# Load the keys data
+# Get the logger
 logger = logging.getLogger('Rotating log')
 logger.info("Starting keys server app.")
+
+# Load the model version file
 model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
@@ -56,6 +61,8 @@ with open(model_version_file) as f:
     logger.info("Model name: {}".format(MODEL_NAME))
     logger.info("Model version: {}".format(MODEL_VERSION))
 
+# Initialise keys lookup service (invokes loading of VRG geodatabase
+# and data files)
 try:
     logging.info('Initialising keys lookup service.')
     keys_lookup = KeysLookup(keys_data_directory=KEYS_DATA_DIRECTORY)
