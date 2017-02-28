@@ -153,17 +153,10 @@ def process_csv(is_gzipped):
 
     results = []
     reader = csv.reader(io.StringIO(data), delimiter=',')
+    rows = map(tuple, reader)
 
-    #Skip the header
-    next(reader)
-    for row in reader:
-        if row:
-            keys_lookup.process_row(row, results)
-        else:
-            break
-        #processed_count += 1
-        #if processed_count % 100 == 0:
-        #    logging.info("Processed {} locations".format(processed_count))
+    for exposure_record in keys_lookup.process_rows(rows):
+        results.append(exposure_record)
 
     apids = keys_lookup._get_area_peril_id_bulk(io.StringIO(data))
 
