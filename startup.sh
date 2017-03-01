@@ -1,3 +1,3 @@
 #!/bin/bash
 
-apachectl start
+apache2ctl start
