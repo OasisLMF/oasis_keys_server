@@ -5,19 +5,26 @@ Currently handles compressed/uncompressed POSTed data.
 Processes the data sequentially - should be made multi-threaded.
 
 '''
-from ConfigParser import ConfigParser
 import csv
+import gzip
 import inspect
 import io
 import json
+import logging
 import math
 import os
 import sys
-import gzip
-import logging
-from keys_server.KeysLookup import KeysLookup
+
+from ConfigParser import ConfigParser
+
 from flask import Flask, Response, request
-from oasis_utils import oasis_utils, oasis_log_utils
+
+from keys_server.KeysLookup import KeysLookup
+
+from oasis_utils import (
+    oasis_utils,
+    oasis_log_utils,
+)
 
 # Enable utf8 encoding
 reload(sys)
@@ -74,7 +81,8 @@ except:
 @oasis_log_utils.oasis_log()
 @APP.route(
     '/{}/{}/{}/healthcheck'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION),
-    methods=['GET'])
+    methods=['GET']
+)
 def get_healthcheck():
     '''
     Healthcheck response.
@@ -104,7 +112,8 @@ def _is_gzipped():
 @oasis_log_utils.oasis_log()
 @APP.route(
     '/{}/{}/{}/get_keys'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION),
-    methods=['POST'])
+    methods=['POST']
+)
 def post_get_keys():
     '''
     Do a lookup on posted location data.
@@ -160,7 +169,6 @@ def process_csv(is_gzipped):
 
     apids = keys_lookup._get_area_peril_id_bulk(io.StringIO(data))
 
-    processed_count = 0
     for i in range(len(apids)):
         if not math.isnan(apids[i]):
             apid = int(apids[i])
@@ -170,16 +178,9 @@ def process_csv(is_gzipped):
             results[3*i]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
             results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
             results[3*i+2]['status']= oasis_utils.KEYS_STATUS_SUCCESS
-        #if results[3*i]['message'] == "AreaPerilID not implemented":
-            #results[3*i]['area_peril_id'] = oasis_utils.UNKNOWN_ID
-            #results[3*i+1]['area_peril_id'] = oasis_utils.UNKNOWN_ID
-            #results[3*i+2]['area_peril_id'] = oasis_utils.UNKNOWN_ID
             results[3*i]['message'] = ""
             results[3*i+1]['message'] = ""
             results[3*i+2]['message'] = ""
-            #results[3*i]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
-            #results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
-            #results[3*i+2]['status'] = oasis_utils.KEYS_STATUS_NO_MATCH
     logger.info('### post bulk area peril id results={}'.format(results))
     return results
 
