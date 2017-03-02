@@ -103,11 +103,10 @@ def _is_gzipped():
     """
     Is the POST data gzipped?
     """
-    is_gzipped = False
-    if 'Content-Encoding' in request.headers:
-        content_encoding = request.headers['Content-Encoding']
-        is_gzipped = (content_encoding == 'gzip')
-    return is_gzipped
+    try:
+        return request.headers['Content-Encoding'] == 'gzip'
+    except KeyError:
+        pass
 
 @oasis_log_utils.oasis_log()
 @APP.route(
