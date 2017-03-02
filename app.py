@@ -120,7 +120,7 @@ def post_get_keys():
     '''
     data = None
     try:
-        lookup_results = list()
+        lookup_results = []
 
         _check_content_type()
         is_gzipped = _is_gzipped()
