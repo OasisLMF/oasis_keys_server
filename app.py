@@ -89,15 +89,17 @@ def get_healthcheck():
     '''
     return "OK"
 
+
 def _check_content_type():
     """
     Check that the POST data is CSV.
     """
-    content_type = ''
-    if 'Content-Type' in request.headers:
-        content_type = request.headers['Content-Type']
-    if content_type != 'text/csv; charset=utf-8':
-        raise Exception("Unsupported content type: ", content_type)
+    try:
+        if request.headers['Content-Type'] != 'text/csv; charset=utf-8':
+            raise Exception("Unsupported content type: ", content_type)
+    except KeyError:
+        pass
+
 
 def _is_gzipped():
     """
@@ -107,6 +109,7 @@ def _is_gzipped():
         return request.headers['Content-Encoding'] == 'gzip'
     except KeyError:
         pass
+
 
 @oasis_log_utils.oasis_log()
 @APP.route(
@@ -146,6 +149,7 @@ def post_get_keys():
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR)
     return response
 
+
 @oasis_log_utils.oasis_log()
 def process_csv(is_gzipped):
     '''
@@ -153,35 +157,19 @@ def process_csv(is_gzipped):
     '''
     data = None
     if is_gzipped:
-        data = gzip.zlib.decompress(request.data).decode('utf-8')
+        loc_data = gzip.zlib.decompress(request.data).decode('utf-8')
     else:
-        data = request.data.decode('utf-8')
+        loc_data = request.data.decode('utf-8')
 
     logger.debug("Processing locations - csv")
 
     results = []
-    reader = csv.reader(io.StringIO(data), delimiter=',')
-    rows = map(tuple, reader)
+    for result in keys_lookup.process_locations(loc_data):
+        results.append(result)
 
-    for exposure_record in keys_lookup.process_rows(rows):
-        results.append(exposure_record)
-
-    apids = keys_lookup._get_area_peril_id_bulk(io.StringIO(data))
-
-    for i in range(len(apids)):
-        if not math.isnan(apids[i]):
-            apid = int(apids[i])
-            results[3*i]['area_peril_id'] = apid
-            results[3*i+1]['area_peril_id']= apid
-            results[3*i+2]['area_peril_id']= apid
-            results[3*i]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
-            results[3*i+1]['status'] = oasis_utils.KEYS_STATUS_SUCCESS
-            results[3*i+2]['status']= oasis_utils.KEYS_STATUS_SUCCESS
-            results[3*i]['message'] = ""
-            results[3*i+1]['message'] = ""
-            results[3*i+2]['message'] = ""
-    logger.info('### post bulk area peril id results={}'.format(results))
+    logger.info('### Results: {}'.format(results))
     return results
+
 
 if __name__ == '__main__':
     APP.run(debug=True, host='0.0.0.0', port=5000)

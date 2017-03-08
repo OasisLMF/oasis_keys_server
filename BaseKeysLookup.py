@@ -1,5 +1,10 @@
 import logging
-from oasis_utils import oasis_utils, oasis_log_utils
+import os
+
+from oasis_utils import (
+    oasis_utils,
+    oasis_log_utils,
+)
 
 class BaseKeysLookup(object):
     """
@@ -14,6 +19,28 @@ class BaseKeysLookup(object):
         Initialise the static data required for the lookup.
         """
         pass
+
+
+    @oasis_log_utils.oasis_log()
+    def __init__(
+        self,
+        keys_data_directory=os.path.join('/', 'var', 'oasis', 'keys_data'),
+        areas=None,
+        vulnerabilities=None,
+        location_map=None,
+        vulnerability_map=None,
+        construction_class=None
+    ):
+        """
+        Initialise the static data required for the lookup.
+        """
+        self.KEYS_DATA_DIRECTORY = keys_data_directory
+        self.areas = areas
+        self.vulnerabilities = vulnerabilities
+        self.location_map = location_map
+        self.vulnerability_map = vulnerability_map
+        self.construction_class = construction_class
+
 
     @oasis_log_utils.oasis_log()
     def process_row(self, row, results):
@@ -104,7 +131,7 @@ class BaseKeysLookup(object):
         """
         Parse a string to int
         """
-        if val == 'n/a':
+        if not val or val == 'n/a':
             return None
         return int(val)
 
