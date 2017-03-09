@@ -32,7 +32,8 @@ class BaseKeysLookup(object):
         construction_class=None
     ):
         """
-        Initialise the static data required for the lookup.
+        This replaces init above - initialise the static data required
+        for the lookup.
         """
         self.KEYS_DATA_DIRECTORY = keys_data_directory
         self.areas = areas
@@ -40,6 +41,15 @@ class BaseKeysLookup(object):
         self.location_map = location_map
         self.vulnerability_map = vulnerability_map
         self.construction_class = construction_class
+
+
+    @oasis_log_utils.oasis_log()
+    def process_locations(self, loc_data):
+        """
+        Read in raw location rows from request CSV data and generate
+        exposure records.
+        """
+        pass
 
 
     @oasis_log_utils.oasis_log()
@@ -51,7 +61,8 @@ class BaseKeysLookup(object):
         record = None
         row_failed = False
         for coverage_type in (
-                oasis_utils.BUILDING_COVERAGE_CODE, oasis_utils.CONTENTS_COVERAGE_CODE):
+                oasis_utils.BUILDING_COVERAGE_CODE,
+                oasis_utils.CONTENTS_COVERAGE_CODE):
             try:
                 if record is None:
                     record = self._read_record(row)
@@ -78,6 +89,17 @@ class BaseKeysLookup(object):
                 'status': status
             }
             results.append(exposure_record)
+
+
+    def _get_location_record(self, raw_loc_item):
+        """
+        Returns a dict of standard location keys and values based on
+        a raw location item, which could be a Pandas or Geopandas dataframe
+        row or a string representing a line from a CSV file, or a list or
+        tuple.
+        """
+        pass
+
 
     def _read_record(self, line):
         """
@@ -106,17 +128,31 @@ class BaseKeysLookup(object):
             'cv2val': self._to_float(vals.pop()),
         }
 
+
     def _get_area_peril_id(self, record):
         """
         Get the area peril ID for a particular location record.
         """
         return oasis_utils.UNKNOWN_ID, "Not implemented"
 
+
     def _get_vulnerability_id(self, record):
         """
         Get the vulnerability ID for a particular location record.
         """
         return oasis_utils.UNKNOWN_ID-1, "Not implemented"
+
+
+    @oasis_log_utils.oasis_log()
+    def _get_area_peril_ids(self, loc_data, include_context=True):
+        """
+        Generates area peril IDs in two modes - if include_context is
+        True (default) it will generate location records/rows including
+        the area peril IDs, otherwise it will generate pairs of location
+        IDs and the corresponding area peril IDs.
+        """
+        pass
+
 
     def _get_lookup_success(self, ap_id, vul_id):
         """
@@ -127,18 +163,23 @@ class BaseKeysLookup(object):
             status = oasis_utils.KEYS_STATUS_NOMATCH
         return status
 
+
+    def _to_string(self, val):
+        """
+        Convert to string, with possible additional formatting.
+        """
+        return str(val) if val != None else ''
+
+
     def _to_int(self, val):
         """
         Parse a string to int
         """
-        if not val or val == 'n/a':
-            return None
-        return int(val)
+        return None if not val or val == 'n/a' else int(val)
+
 
     def _to_float(self, val):
         """
         Parse a string to float
         """
-        if not val or val == 'NULL':
-            return None
-        return float(val)
+        return None if not val or val == 'NULL' else float(val)
