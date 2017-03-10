@@ -45,23 +45,23 @@ oasis_log_utils.read_log_config(CONFIG_PARSER)
 # Set Gzip response settings and keys data directory path
 DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
 PORT = CONFIG_PARSER.get('Default', 'PORT')
-KEYS_DATA_DIRECTORY = os.path.join('/', 'var', 'oasis', 'keys_data')
+KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
 
 # Get the logger
 logger = logging.getLogger('Rotating log')
 logger.info("Starting keys server app.")
 
 # Load the model version file
-model_version_file = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
+MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
         "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY))
     sys.exit(1)
-if not os.path.isfile(model_version_file):
+if not os.path.isfile(MODEL_VERSION_FILE):
     logger.exception(
-        "No model version file: {}".format(model_version_file))
+        "No model version file: {}".format(MODEL_VERSION_FILE))
     sys.exit(1)
-with open(model_version_file) as f:
+with open(MODEL_VERSION_FILE) as f:
     (SUPPLIER, MODEL_NAME, MODEL_VERSION) = f.readline().split(",")
     MODEL_VERSION = MODEL_VERSION.rstrip()
     logger.info("Supplier: {}".format(SUPPLIER))
@@ -72,7 +72,12 @@ with open(model_version_file) as f:
 # and data files)
 try:
     logging.info('Initialising keys lookup service.')
-    keys_lookup = KeysLookup(keys_data_directory=KEYS_DATA_DIRECTORY)
+    keys_lookup = KeysLookup(
+        keys_data_directory=KEYS_DATA_DIRECTORY,
+        supplier=SUPPLIER,
+        model_name=MODEL_NAME,
+        model_version=MODEL_VERSION
+    )
 except:
     logger.exception("Error initializing keys lookup service.")
     sys.exit(1)
