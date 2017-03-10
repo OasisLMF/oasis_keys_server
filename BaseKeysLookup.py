@@ -15,6 +15,9 @@ class BaseKeysLookup(object):
     def __init__(
         self,
         keys_data_directory=os.path.join('/', 'var', 'oasis', 'keys_data'),
+        supplier=None,
+        model_name=None,
+        model_verson=None,
         areas=None,
         vulnerabilities=None,
         location_map=None,
@@ -26,6 +29,9 @@ class BaseKeysLookup(object):
         for the lookup.
         """
         self.KEYS_DATA_DIRECTORY = keys_data_directory
+        self.supplier = supplier
+        self.model_name = model_name
+        self.model_version = model_version
         self.areas = areas
         self.vulnerabilities = vulnerabilities
         self.location_map = location_map
