@@ -14,10 +14,10 @@ class BaseKeysLookup(object):
     @oasis_log_utils.oasis_log()
     def __init__(
         self,
-        keys_data_directory=os.path.join('/', 'var', 'oasis', 'keys_data'),
+        keys_data_directory=os.path.join(os.sep, 'var', 'oasis', 'keys_data'),
         supplier=None,
         model_name=None,
-        model_verson=None,
+        model_version=None,
         areas=None,
         vulnerabilities=None,
         location_map=None,
