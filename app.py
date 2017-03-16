@@ -1,3 +1,7 @@
+__all__ = [
+    'APP'
+]
+
 '''
 Flask application for Oasis keys service.
 
@@ -17,9 +21,13 @@ import sys
 
 from ConfigParser import ConfigParser
 
-from flask import Flask, Response, request
+from flask import (
+    Flask,
+    request,
+    Response,
+)
 
-from keys_server.KeysLookup import KeysLookup
+import keys_server
 
 from oasis_utils import (
     oasis_utils,
@@ -68,18 +76,28 @@ with open(MODEL_VERSION_FILE) as f:
     logger.info("Model name: {}".format(MODEL_NAME))
     logger.info("Model version: {}".format(MODEL_VERSION))
 
-# Initialise keys lookup service (invokes loading of VRG geodatabase
-# and data files)
+# Initialise keys lookup service
+
+@oasis_log_utils.oasis_log()
+def get_keys_lookup(
+    keys_data_directory,
+    supplier,
+    model_name,
+    model_version
+):
+    klc = getattr(keys_server, '{}KeysLookup'.format(model_name))
+    return klc(keys_data_directory, supplier, model_name, model_version)
+
 try:
     logging.info('Initialising keys lookup service.')
-    keys_lookup = KeysLookup(
-        keys_data_directory=KEYS_DATA_DIRECTORY,
-        supplier=SUPPLIER,
-        model_name=MODEL_NAME,
-        model_version=MODEL_VERSION
+    keys_lookup = get_keys_lookup(
+        KEYS_DATA_DIRECTORY,
+        SUPPLIER,
+        MODEL_NAME,
+        MODEL_VERSION
     )
-except:
-    logger.exception("Error initializing keys lookup service.")
+except Exception as e:
+    logger.exception("Error initializing keys lookup service: {}".format(str(e)))
     sys.exit(1)
 
 
