@@ -70,11 +70,13 @@ if not os.path.isfile(MODEL_VERSION_FILE):
         "No model version file: {}".format(MODEL_VERSION_FILE))
     sys.exit(1)
 with open(MODEL_VERSION_FILE) as f:
-    (SUPPLIER, MODEL_NAME, MODEL_VERSION) = f.readline().split(",")
+    (SUPPLIER, MODEL_NAME, MODEL_VERSION) = map(tuple, csv.reader(f))[0]
     MODEL_VERSION = MODEL_VERSION.rstrip()
     logger.info("Supplier: {}".format(SUPPLIER))
     logger.info("Model name: {}".format(MODEL_NAME))
     logger.info("Model version: {}".format(MODEL_VERSION))
+
+SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_NAME)
 
 # Initialise keys lookup service
 
@@ -102,15 +104,12 @@ except Exception as e:
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(
-    '/{}/{}/{}/healthcheck'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION),
-    methods=['GET']
-)
+@APP.route(os.path.join(SERVICE_BASE_URL, 'healthcheck'), methods=['GET'])
 def get_healthcheck():
     '''
     Healthcheck response.
     '''
-    return "OK"
+    return "OK\n"
 
 
 def _check_content_type():
@@ -135,9 +134,7 @@ def _is_gzipped():
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(
-    '/{}/{}/{}/get_keys'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION),
-    methods=['POST']
+@APP.route(os.path.join(SERVICE_BASE_URL, 'get_keys'), methods=['POST'])
 )
 def post_get_keys():
     '''
