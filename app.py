@@ -76,7 +76,7 @@ with open(MODEL_VERSION_FILE) as f:
     logger.info("Model name: {}".format(MODEL_NAME))
     logger.info("Model version: {}".format(MODEL_VERSION))
 
-SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_NAME)
+SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
 
 # Initialise keys lookup service
 
