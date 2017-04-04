@@ -158,14 +158,16 @@ def post_get_keys():
             data = gzip.zlib.compress(data)
 
         response = Response(
-            data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype="application/json")
+            data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype="application/json"
+        )
 
         if DO_GZIP_RESPONSE:
             response.headers['Content-Encoding'] = 'gzip'
     except:
-        logger.exception("Error in post_lookup")
+        logger.exception("Lookup error")
         response = Response(
-            status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR)
+            status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR
+        )
     return response
 
 
