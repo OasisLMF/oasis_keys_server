@@ -69,17 +69,18 @@ if not os.path.isfile(MODEL_VERSION_FILE):
     logger.exception(
         "No model version file: {}".format(MODEL_VERSION_FILE))
     sys.exit(1)
-with open(MODEL_VERSION_FILE) as f:
-    (SUPPLIER, MODEL_NAME, MODEL_VERSION) = map(tuple, csv.reader(f))[0]
-    MODEL_VERSION = MODEL_VERSION.rstrip()
-    logger.info("Supplier: {}".format(SUPPLIER))
-    logger.info("Model name: {}".format(MODEL_NAME))
-    logger.info("Model version: {}".format(MODEL_VERSION))
 
+with open(MODEL_VERSION_FILE) as f:
+    SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+    
+logger.info("Supplier: {}".format(SUPPLIER))
+logger.info("Model name: {}".format(MODEL_NAME))
+logger.info("Model version: {}".format(MODEL_VERSION))
+
+# Set the web service base URL
 SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
 
 # Initialise keys lookup service
-
 @oasis_log_utils.oasis_log()
 def get_keys_lookup(
     keys_data_directory,
