@@ -63,11 +63,13 @@ logger.info("Starting keys server app.")
 MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
-        "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY))
+        "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY)
+    )
     sys.exit(1)
 if not os.path.isfile(MODEL_VERSION_FILE):
     logger.exception(
-        "No model version file: {}".format(MODEL_VERSION_FILE))
+        "No model version file: {}".format(MODEL_VERSION_FILE)
+    )
     sys.exit(1)
 
 with open(MODEL_VERSION_FILE) as f:
