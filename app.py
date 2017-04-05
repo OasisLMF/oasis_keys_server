@@ -56,28 +56,28 @@ PORT = CONFIG_PARSER.get('Default', 'PORT')
 KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
 
 # Get the logger
-logger = logging.getLogger('Rotating log')
+logger = logging.getLogger('Starting rotating log.')
 logger.info("Starting keys server app.")
 
 # Load the model version file
 MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
-        "Keys data directory not found: {}".format(KEYS_DATA_DIRECTORY)
+        "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
     )
     sys.exit(1)
 if not os.path.isfile(MODEL_VERSION_FILE):
     logger.exception(
-        "No model version file: {}".format(MODEL_VERSION_FILE)
+        "No model version file: {}.".format(MODEL_VERSION_FILE)
     )
     sys.exit(1)
 
 with open(MODEL_VERSION_FILE) as f:
     SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
     
-logger.info("Supplier: {}".format(SUPPLIER))
-logger.info("Model name: {}".format(MODEL_NAME))
-logger.info("Model version: {}".format(MODEL_VERSION))
+logger.info("Supplier: {}.".format(SUPPLIER))
+logger.info("Model name: {}.".format(MODEL_NAME))
+logger.info("Model version: {}.".format(MODEL_VERSION))
 
 # Set the web service base URL
 SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
@@ -102,7 +102,7 @@ try:
         MODEL_VERSION
     )
 except Exception as e:
-    logger.exception("Error initializing keys lookup service: {}".format(str(e)))
+    logger.exception("Error initializing keys lookup service: {}.".format(str(e)))
     sys.exit(1)
 
 
@@ -124,8 +124,6 @@ def post_get_keys():
     response = res_data = None
 
     try:
-        lookup_results = []
-
         try:
             content_type = request.headers['Content-Type']
         except KeyError:
@@ -158,7 +156,7 @@ def post_get_keys():
         if DO_GZIP_RESPONSE:
             response.headers['Content-Encoding'] = 'gzip'
     except Exception as e:
-        logger.exception("Lookup error: {}".format(str(e)))
+        logger.exception("Keys lookup error: {}.".format(str(e)))
         response = Response(
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
@@ -176,7 +174,7 @@ def process_csv(is_gzipped=False):
         else request.data.decode('utf-8')
     )
 
-    logger.debug("Processing locations - csv")
+    logger.debug("Processing locations.")
 
     results = []
     for result in keys_lookup.process_locations(loc_data):
