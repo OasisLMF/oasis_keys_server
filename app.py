@@ -121,10 +121,9 @@ def post_get_keys():
     '''
     Do a lookup on posted location data.
     '''
-    response = None
+    response = res_data = None
 
     try:
-        res_data = None
         lookup_results = []
 
         try:
@@ -172,11 +171,10 @@ def process_csv(is_gzipped=False):
     '''
     Process locations posted as CSV data.
     '''
-    data = None
-    if is_gzipped:
-        loc_data = gzip.zlib.decompress(request.data).decode('utf-8')
-    else:
-        loc_data = request.data.decode('utf-8')
+    loc_data = (
+        gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
+        else request.data.decode('utf-8')
+    )
 
     logger.debug("Processing locations - csv")
 
