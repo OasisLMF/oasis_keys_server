@@ -115,67 +115,60 @@ def get_healthcheck():
     return "OK\n"
 
 
-def _check_content_type():
-    """
-    Check that the POST data is CSV.
-    """
-    try:
-        if request.headers['Content-Type'] != 'text/csv; charset=utf-8':
-            raise Exception("Unsupported content type: ", content_type)
-    except KeyError:
-        pass
-
-
-def _is_gzipped():
-    """
-    Is the POST data gzipped?
-    """
-    try:
-        return request.headers['Content-Encoding'] == 'gzip'
-    except KeyError:
-        pass
-
-
 @oasis_log_utils.oasis_log()
 @APP.route(os.path.join(SERVICE_BASE_URL, 'get_keys'), methods=['POST'])
 def post_get_keys():
     '''
     Do a lookup on posted location data.
     '''
-    data = None
+    response = None
+
     try:
+        res_data = None
         lookup_results = []
 
-        _check_content_type()
-        is_gzipped = _is_gzipped()
+        try:
+            content_type = request.headers['Content-Type']
+        except KeyError:
+            pass
+        else:
+            if content_type != 'text/csv; charset=utf-8':
+                raise Exception("Unsupported content type: ", content_type)
+
+        try:
+            is_gzipped = request.headers['Content-Encoding'] == 'gzip'
+        except KeyError:
+            is_gzipped = False
+
         lookup_results = process_csv(is_gzipped)
 
-        response_data = {
+        data_dict = {
             "status": 'success',
             "items": lookup_results
         }
 
-        data = json.dumps(response_data).encode('utf8')
+        res_data = json.dumps(data_dict).encode('utf8')
 
         if DO_GZIP_RESPONSE:
-            data = gzip.zlib.compress(data)
+            res_data = gzip.zlib.compress(res_data)
 
         response = Response(
-            data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype="application/json"
+            res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype="application/json"
         )
 
         if DO_GZIP_RESPONSE:
             response.headers['Content-Encoding'] = 'gzip'
-    except:
-        logger.exception("Lookup error")
+    except Exception as e:
+        logger.exception("Lookup error: {}".format(str(e)))
         response = Response(
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
-    return response
+    finally:
+        return response
 
 
 @oasis_log_utils.oasis_log()
-def process_csv(is_gzipped):
+def process_csv(is_gzipped=False):
     '''
     Process locations posted as CSV data.
     '''
