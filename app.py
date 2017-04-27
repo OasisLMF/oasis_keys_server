@@ -182,7 +182,7 @@ def process_csv(is_gzipped=False):
     for result in keys_lookup.process_locations(loc_data):
         results.append(result)
 
-    logger.info('### Results: {}'.format(results))
+    logger.info('### {} Exposure records: {}'.format(len(results), results))
     return results
 
 
