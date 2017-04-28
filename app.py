@@ -95,8 +95,12 @@ def get_keys_lookup(
     klc = getattr(keys_server, '{}KeysLookup'.format(model_name))
     return klc(keys_data_directory, supplier, model_name, model_version)
 
+# The model keys lookup instance declaration
+keys_lookup = None
+
+# Creating the keys lookup instance
 try:
-    logging.info('Initialising keys lookup service.')
+    logging.info('Creating keys lookup service.')
     keys_lookup = get_keys_lookup(
         KEYS_DATA_DIRECTORY,
         SUPPLIER,
@@ -104,7 +108,7 @@ try:
         MODEL_VERSION
     )
 except Exception as e:
-    logger.exception("Error initializing keys lookup service: {}.".format(str(e)))
+    logger.exception("Error in creating keys lookup service: {}.".format(str(e)))
     sys.exit(1)
 
 
@@ -131,15 +135,21 @@ def post_get_keys():
         except KeyError:
             pass
         else:
-            if content_type != 'text/csv; charset=utf-8':
-                raise Exception("Unsupported content type: ", content_type)
+            if content_type not in [
+                oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV,
+                oasis_utils.HTTP_REQUEST_CONTENT_TYPE_JSON
+            ]:
+                raise Exception('Unsupported content type: "{}"'.format(content_type))
 
         try:
             is_gzipped = request.headers['Content-Encoding'] == 'gzip'
         except KeyError:
             is_gzipped = False
 
-        lookup_results = process_csv(is_gzipped)
+        lookup_results = (
+            process_csv(is_gzipped) if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
+            else process_json(is_gzipped)
+        )
 
         data_dict = {
             "status": 'success',
@@ -152,7 +162,7 @@ def post_get_keys():
             res_data = gzip.zlib.compress(res_data)
 
         response = Response(
-            res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype="application/json"
+            res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype=oasis_utils.MIME_TYPE_JSON
         )
 
         if DO_GZIP_RESPONSE:
@@ -179,7 +189,27 @@ def process_csv(is_gzipped=False):
     logger.debug("Processing locations.")
 
     results = []
-    for result in keys_lookup.process_locations(loc_data):
+    for result in keys_lookup.process_locations(loc_data, mime_type=oasis_utils.MIME_TYPE_CSV):
+        results.append(result)
+
+    logger.info('### {} Exposure records: {}'.format(len(results), results))
+    return results
+
+
+@oasis_log_utils.oasis_log()
+def process_json(is_gzipped=False):
+    '''
+    Process locations posted as JSON data.
+    '''
+    loc_data = (
+        gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
+        else request.data.decode('utf-8')
+    )
+
+    logger.debug("Processing locations.")
+
+    results = []
+    for result in keys_lookup.process_locations(loc_data, mime_type=oasis_utils.MIME_TYPE_JSON):
         results.append(result)
 
     logger.info('### {} Exposure records: {}'.format(len(results), results))
