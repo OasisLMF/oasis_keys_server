@@ -87,10 +87,10 @@ SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
 # Initialise keys lookup service
 @oasis_log_utils.oasis_log()
 def get_keys_lookup(
-    keys_data_directory,
-    supplier,
-    model_name,
-    model_version
+    keys_data_directory=KEYS_DATA_DIRECTORY,
+    supplier=SUPPLIER,
+    model_name=MODEL_NAME,
+    model_version=MODEL_VERSION
 ):
     klc = getattr(keys_server, '{}KeysLookup'.format(model_name))
     return klc(keys_data_directory, supplier, model_name, model_version)
@@ -101,12 +101,7 @@ keys_lookup = None
 # Creating the keys lookup instance
 try:
     logging.info('Creating keys lookup service.')
-    keys_lookup = get_keys_lookup(
-        KEYS_DATA_DIRECTORY,
-        SUPPLIER,
-        MODEL_NAME,
-        MODEL_VERSION
-    )
+    keys_lookup = get_keys_lookup()
 except Exception as e:
     logger.exception("Error in creating keys lookup service: {}.".format(str(e)))
     sys.exit(1)
