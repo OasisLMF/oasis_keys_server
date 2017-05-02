@@ -27,6 +27,10 @@ from flask import (
     Response,
 )
 
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+SRC_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, '..', '..', 'src'))
+sys.path.append(SRC_PATH)
+
 import keys_server
 
 from oasis_utils import (
@@ -43,28 +47,35 @@ APP = Flask(__name__)
 
 # Load keys server config settings
 CONFIG_PARSER = ConfigParser()
-CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
 CONFIG_PARSER.read(INI_PATH)
 
+# Change log file location to be inside /tmp if app config indicates test mode
+TEST_MODE = CONFIG_PARSER.getboolean('Default', 'TEST_MODE')
+if TEST_MODE:
+    CONFIG_PARSER.set('Default', 'LOG_FILE', '/tmp/KeysServer.log')
+
 # Logging configuration
 oasis_log_utils.read_log_config(CONFIG_PARSER)
+
+# Get the logger
+logger = logging.getLogger('Starting rotating log.')
+logger.info("Starting keys server app.")
 
 # Get Gzip response and port settings
 DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
 PORT = CONFIG_PARSER.get('Default', 'PORT')
 
 # Check that the keys data directory exists
-KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
+KEYS_DATA_DIRECTORY = (
+    os.path.join(os.sep, 'var', 'oasis', 'keys_data') if not TEST_MODE
+    else os.path.abspath(os.path.join(SRC_PATH, '..', 'keys_data'))
+)
 if not os.path.isdir(KEYS_DATA_DIRECTORY):
     logger.exception(
         "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
     )
     sys.exit(1)
-
-# Get the logger
-logger = logging.getLogger('Starting rotating log.')
-logger.info("Starting keys server app.")
 
 # Check the model version file exists
 MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
