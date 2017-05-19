@@ -117,7 +117,7 @@ def get_healthcheck():
 
 @oasis_log_utils.oasis_log()
 @APP.route(os.path.join(SERVICE_BASE_URL, 'get_keys'), methods=['POST'])
-def post_get_keys():
+def get_keys():
     '''
     Do a lookup on posted location data.
     '''
