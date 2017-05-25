@@ -99,10 +99,10 @@ keys_lookup = None
 
 # Creating the keys lookup instance
 try:
-    logging.info('Creating keys lookup service.')
     keys_lookup = get_keys_lookup()
+    logging.info('Loaded keys lookup service {}'.format(keys_lookup))
 except Exception as e:
-    logger.exception("Error in creating keys lookup service: {}.".format(str(e)))
+    logger.exception("Error in loading keys lookup service: {}.".format(str(e)))
     sys.exit(1)
 
 
