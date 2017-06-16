@@ -19,10 +19,10 @@
 
 import os
 import sys
-cwd = os.getcwd()
+cwd = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(cwd))
-sys.path.insert(1, os.path.abspath(os.path.join(cwd, 'oasis_keys_server')))
-sys.path.insert(2, os.path.abspath(os.path.join(cwd, 'oasis_keys_server', 'docs')))
+sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..', '..')))
 
 
 # -- General configuration ------------------------------------------------
@@ -83,6 +83,9 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# Autodoc mock imports - skip the following imports
+autodoc_mock_imports = ['keys_server', 'oasis_utils']
 
 
 # -- Options for HTML output ----------------------------------------------

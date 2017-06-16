@@ -50,6 +50,9 @@ CONFIG_PARSER.read(INI_PATH)
 # Logging configuration
 oasis_log_utils.read_log_config(CONFIG_PARSER)
 
+logger = logging.getLogger('Starting rotating log.')
+logger.info("Starting keys server app.")
+
 # Get Gzip response and port settings
 DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
 PORT = CONFIG_PARSER.get('Default', 'PORT')
@@ -61,10 +64,6 @@ if not os.path.isdir(KEYS_DATA_DIRECTORY):
         "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
     )
     sys.exit(1)
-
-# Get the logger
-logger = logging.getLogger('Starting rotating log.')
-logger.info("Starting keys server app.")
 
 # Check the model version file exists
 MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
