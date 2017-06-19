@@ -1,2 +1,2 @@
-# oasis_keys_server
-Generic Oasis keys server, for resuse in specific models.
+# Oasis Keys Server
+Generic Oasis keys server (Flask), for resuse in specific models.
