@@ -47,6 +47,11 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.curr
 INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
 CONFIG_PARSER.read(INI_PATH)
 
+# Get run mode - could be 'live' if production mode or 'test' if not. This
+# could be used to conditionally execute or not execute parts of the
+# initialisation code
+RUN_MODE = CONFIG_PARSER.get('Default', 'RUN_MODE')
+
 # Logging configuration
 oasis_log_utils.read_log_config(CONFIG_PARSER)
 
