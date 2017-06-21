@@ -67,6 +67,7 @@ def init():
     global CONFIG_PARSER
     global RUN_MODE
     global logger
+    global DO_GZIP_RESPONSE
     global KEYS_DATA_DIRECTORY
     global MODEL_VERSION_FILE
     global MODEL_NAME
