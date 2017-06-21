@@ -48,6 +48,18 @@ SERVICE_BASE_URL = None
 keys_lookup = None
 
 
+# Initialise keys lookup service
+@oasis_log_utils.oasis_log()
+def get_keys_lookup(
+    keys_data_directory,
+    supplier,
+    model_name,
+    model_version
+):
+    klc = getattr(keys_server, "{}KeysLookup".format(model_name))
+    return klc(keys_data_directory, supplier, model_name, model_version)
+
+
 # App initialisation
 @oasis_log_utils.oasis_log()
 def init():
@@ -71,9 +83,8 @@ def init():
 
     # Load keys server config settings
     CONFIG_PARSER = ConfigParser()
-    CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
-    CONFIG_PARSER.read(INI_PATH)
+    cwd = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    CONFIG_PARSER.read(os.path.abspath(os.path.join(cwd, 'KeysServer.ini')))
 
     # Get run mode - could be 'live' if production mode or 'test' if not. This
     # could be used to conditionally execute or not execute parts of the
@@ -124,17 +135,7 @@ def init():
         logger.exception("Error in loading keys lookup service: {}.".format(str(e)))
         sys.exit(1)
 
-
-# Initialise keys lookup service
-@oasis_log_utils.oasis_log()
-def get_keys_lookup(
-    keys_data_directory,
-    supplier,
-    model_name,
-    model_version
-):
-    klc = getattr(keys_server, "{}KeysLookup".format(model_name))
-    return klc(keys_data_directory, supplier, model_name, model_version)
+init()
 
 
 @oasis_log_utils.oasis_log()
