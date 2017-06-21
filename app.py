@@ -34,59 +34,96 @@ from oasis_utils import (
     oasis_log_utils,
 )
 
-# Enable utf8 encoding
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# Module-level variables (globals)
+APP = None
+CONFIG_PARSER = None
+RUN_MODE = None
+logger = None
+KEYS_DATA_DIRECTORY = None
+MODEL_VERSION_FILE = None
+SUPPLIER = None
+MODEL_NAME = None
+MODEL_VERSION = None
+SERVICE_BASE_URL = None
+keys_lookup = None
 
-# Get the Flask app
-APP = Flask(__name__)
 
-# Load keys server config settings
-CONFIG_PARSER = ConfigParser()
-CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
-CONFIG_PARSER.read(INI_PATH)
+# App initialisation
+@oasis_log_utils.oasis_log()
+def init():
+    global APP
+    global CONFIG_PARSER
+    global RUN_MODE
+    global logger
+    global KEYS_DATA_DIRECTORY
+    global MODEL_VERSION_FILE
+    global MODEL_NAME
+    global MODEL_VERSION
+    global SERVICE_BASE_URL
+    global keys_lookup
 
-# Get run mode - could be 'live' if production mode or 'test' if not. This
-# could be used to conditionally execute or not execute parts of the
-# initialisation code
-RUN_MODE = CONFIG_PARSER.get('Default', 'RUN_MODE')
+    # Enable utf8 encoding
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
-# Logging configuration
-oasis_log_utils.read_log_config(CONFIG_PARSER)
+    # Get the Flask app
+    APP = Flask(__name__)
 
-logger = logging.getLogger('Starting rotating log.')
-logger.info("Starting keys server app.")
+    # Load keys server config settings
+    CONFIG_PARSER = ConfigParser()
+    CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    INI_PATH = os.path.abspath(os.path.join(CURRENT_DIRECTORY, 'KeysServer.ini'))
+    CONFIG_PARSER.read(INI_PATH)
 
-# Get Gzip response and port settings
-DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
-PORT = CONFIG_PARSER.get('Default', 'PORT')
+    # Get run mode - could be 'live' if production mode or 'test' if not. This
+    # could be used to conditionally execute or not execute parts of the
+    # initialisation code
+    RUN_MODE = CONFIG_PARSER.get('Default', 'RUN_MODE')
 
-# Check that the keys data directory exists
-KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
-if not os.path.isdir(KEYS_DATA_DIRECTORY):
-    logger.exception(
-        "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
-    )
-    sys.exit(1)
+    # Logging configuration
+    oasis_log_utils.read_log_config(CONFIG_PARSER)
 
-# Check the model version file exists
-MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
-if not os.path.isfile(MODEL_VERSION_FILE):
-    logger.exception(
-        "No model version file: {}.".format(MODEL_VERSION_FILE)
-    )
-    sys.exit(1)
+    logger = logging.getLogger('Starting rotating log.')
+    logger.info("Starting keys server app.")
 
-with open(MODEL_VERSION_FILE) as f:
-    SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
-    
-logger.info("Supplier: {}.".format(SUPPLIER))
-logger.info("Model name: {}.".format(MODEL_NAME))
-logger.info("Model version: {}.".format(MODEL_VERSION))
+    # Get Gzip response and port settings
+    DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
+    PORT = CONFIG_PARSER.get('Default', 'PORT')
 
-# Set the web service base URL
-SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
+    # Check that the keys data directory exists
+    KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
+    if not os.path.isdir(KEYS_DATA_DIRECTORY):
+        logger.exception(
+            "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
+        )
+        sys.exit(1)
+
+    # Check the model version file exists
+    MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
+    if not os.path.isfile(MODEL_VERSION_FILE):
+        logger.exception(
+            "No model version file: {}.".format(MODEL_VERSION_FILE)
+        )
+        sys.exit(1)
+
+    with open(MODEL_VERSION_FILE) as f:
+        SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+        
+    logger.info("Supplier: {}.".format(SUPPLIER))
+    logger.info("Model name: {}.".format(MODEL_NAME))
+    logger.info("Model version: {}.".format(MODEL_VERSION))
+
+    # Set the web service base URL
+    SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
+
+    # Creating the keys lookup instance
+    try:
+        keys_lookup = get_keys_lookup(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
+        logging.info("Loaded keys lookup service {}".format(keys_lookup))
+    except Exception as e:
+        logger.exception("Error in loading keys lookup service: {}.".format(str(e)))
+        sys.exit(1)
+
 
 # Initialise keys lookup service
 @oasis_log_utils.oasis_log()
@@ -96,23 +133,12 @@ def get_keys_lookup(
     model_name,
     model_version
 ):
-    klc = getattr(keys_server, '{}KeysLookup'.format(model_name))
+    klc = getattr(keys_server, "{}KeysLookup".format(model_name))
     return klc(keys_data_directory, supplier, model_name, model_version)
-
-# The model keys lookup instance declaration
-keys_lookup = None
-
-# Creating the keys lookup instance
-try:
-    keys_lookup = get_keys_lookup(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
-    logging.info('Loaded keys lookup service {}'.format(keys_lookup))
-except Exception as e:
-    logger.exception("Error in loading keys lookup service: {}.".format(str(e)))
-    sys.exit(1)
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL, 'healthcheck'), methods=['GET'])
+@APP.route(os.path.join(SERVICE_BASE_URL, "healthcheck"), methods=['GET'])
 def get_healthcheck():
     '''
     Healthcheck response.
@@ -121,7 +147,7 @@ def get_healthcheck():
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL, 'get_keys'), methods=['POST'])
+@APP.route(os.path.join(SERVICE_BASE_URL, "get_keys"), methods=['POST'])
 def get_keys():
     '''
     Do a lookup on posted location data.
@@ -216,4 +242,5 @@ def process_json(is_gzipped=False):
 
 
 if __name__ == '__main__':
+    init()
     APP.run(debug=True, host='0.0.0.0', port=5000)
