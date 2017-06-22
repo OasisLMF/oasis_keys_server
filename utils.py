@@ -2,8 +2,6 @@ __all__ = [
 	'get_keys_lookup_instance'
 ]
 
-import gzip
-
 import keys_server
 
 from oasis_utils import (
