@@ -34,8 +34,6 @@ from oasis_utils import (
 
 from .utils import (
     get_keys_lookup_instance,
-    process_csv,
-    process_json,
 )
 
 # Module-level variables (globals)
@@ -164,10 +162,21 @@ def get_keys():
         except KeyError:
             is_gzipped = False
 
-        process_request_func = process_csv if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV else process_json
         logger.info("Processing locations.")
 
-        lookup_results = process_request_func(request, keys_lookup, is_gzipped)
+        loc_data = (
+            gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
+            else request.data.decode('utf-8')
+        )
+
+        mime_type = (
+            oasis_utils.MIME_TYPE_CSV if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
+            else oasis_utils.MIME_TYPE_JSON
+        )
+
+        lookup_results = []
+        for location in keys_lookup.process_locations(loc_data, mime_type=mime_type):
+            lookup_results.append(location)
 
         logger.info('### {} Exposure records: {}'.format(len(lookup_results), lookup_results))
 
