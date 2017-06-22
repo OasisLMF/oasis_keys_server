@@ -27,11 +27,15 @@ from flask import (
     Response,
 )
 
-import keys_server
-
 from oasis_utils import (
     oasis_utils,
     oasis_log_utils,
+)
+
+from .utils import (
+    get_keys_lookup_instance,
+    process_csv,
+    process_json,
 )
 
 # Module-level variables (globals)
@@ -46,22 +50,6 @@ MODEL_NAME = None
 MODEL_VERSION = None
 SERVICE_BASE_URL = None
 keys_lookup = None
-
-
-# Initialise keys lookup service
-@oasis_log_utils.oasis_log()
-def get_keys_lookup(
-    keys_data_directory,
-    supplier,
-    model_name,
-    model_version
-):
-    """
-    Utility method to create a keys lookup instance for the given supplier,
-    model name and version parameters.
-    """
-    klc = getattr(keys_server, "{}KeysLookup".format(model_name))
-    return klc(keys_data_directory, supplier, model_name, model_version)
 
 
 # App initialisation
@@ -131,7 +119,7 @@ def init():
 
     # Creating the keys lookup instance
     try:
-        keys_lookup = get_keys_lookup(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
+        keys_lookup = get_keys_lookup_instance(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
         logging.info("Loaded keys lookup service {}".format(keys_lookup))
     except Exception as e:
         raise Exception("Error in loading keys lookup service: {}.".format(str(e)))
@@ -144,11 +132,11 @@ except Exception as e:
 
 @oasis_log_utils.oasis_log()
 @APP.route(os.path.join(SERVICE_BASE_URL, "healthcheck"), methods=['GET'])
-def get_healthcheck():
+def healthcheck():
     """
     Healthcheck response.
     """
-    return "OK\n"
+    return "OK\n\n"
 
 
 @oasis_log_utils.oasis_log()
@@ -176,10 +164,12 @@ def get_keys():
         except KeyError:
             is_gzipped = False
 
-        lookup_results = (
-            process_csv(is_gzipped) if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
-            else process_json(is_gzipped)
-        )
+        process_request_func = process_csv if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV else process_json
+        logger.info("Processing locations.")
+
+        lookup_results = process_request_func(request, keys_lookup, is_gzipped)
+
+        logger.info('### {} Exposure records: {}'.format(len(lookup_results), lookup_results))
 
         data_dict = {
             "status": 'success',
@@ -204,46 +194,6 @@ def get_keys():
         )
     finally:
         return response
-
-
-@oasis_log_utils.oasis_log()
-def process_csv(is_gzipped=False):
-    """
-    Process locations posted as CSV data.
-    """
-    loc_data = (
-        gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
-        else request.data.decode('utf-8')
-    )
-
-    logger.debug("Processing locations.")
-
-    results = []
-    for result in keys_lookup.process_locations(loc_data, mime_type=oasis_utils.MIME_TYPE_CSV):
-        results.append(result)
-
-    logger.info('### {} Exposure records: {}'.format(len(results), results))
-    return results
-
-
-@oasis_log_utils.oasis_log()
-def process_json(is_gzipped=False):
-    """
-    Process locations posted as JSON data.
-    """
-    loc_data = (
-        gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
-        else request.data.decode('utf-8')
-    )
-
-    logger.debug("Processing locations.")
-
-    results = []
-    for result in keys_lookup.process_locations(loc_data, mime_type=oasis_utils.MIME_TYPE_JSON):
-        results.append(result)
-
-    logger.info('### {} Exposure records: {}'.format(len(results), results))
-    return results
 
 
 if __name__ == '__main__':
