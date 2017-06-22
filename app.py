@@ -56,6 +56,10 @@ def get_keys_lookup(
     model_name,
     model_version
 ):
+    """
+    Utility method to create a keys lookup instance for the given supplier,
+    model name and version parameters.
+    """
     klc = getattr(keys_server, "{}KeysLookup".format(model_name))
     return klc(keys_data_directory, supplier, model_name, model_version)
 
@@ -63,6 +67,9 @@ def get_keys_lookup(
 # App initialisation
 @oasis_log_utils.oasis_log()
 def init():
+    """
+    App initialisation.
+    """
     global APP
     global CONFIG_PARSER
     global RUN_MODE
