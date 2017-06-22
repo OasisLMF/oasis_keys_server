@@ -2,13 +2,13 @@ __all__ = [
     'APP'
 ]
 
-'''
+"""
 Flask application for Oasis keys service.
 
 Currently handles compressed/uncompressed POSTed data. 
 Processes the data sequentially - should be made multi-threaded.
 
-'''
+"""
 import csv
 import gzip
 import inspect
@@ -96,7 +96,7 @@ def init():
     oasis_log_utils.read_log_config(CONFIG_PARSER)
 
     logger = logging.getLogger('Starting rotating log.')
-    logger.info("Starting keys server app.")
+    logger.info("Starting keys service.")
 
     # Get Gzip response and port settings
     DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
@@ -105,18 +105,12 @@ def init():
     # Check that the keys data directory exists
     KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
     if not os.path.isdir(KEYS_DATA_DIRECTORY):
-        logger.exception(
-            "Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY)
-        )
-        sys.exit(1)
+        raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
 
     # Check the model version file exists
     MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
     if not os.path.isfile(MODEL_VERSION_FILE):
-        logger.exception(
-            "No model version file: {}.".format(MODEL_VERSION_FILE)
-        )
-        sys.exit(1)
+        raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
 
     with open(MODEL_VERSION_FILE) as f:
         SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
@@ -133,27 +127,29 @@ def init():
         keys_lookup = get_keys_lookup(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
         logging.info("Loaded keys lookup service {}".format(keys_lookup))
     except Exception as e:
-        logger.exception("Error in loading keys lookup service: {}.".format(str(e)))
-        sys.exit(1)
+        raise Exception("Error in loading keys lookup service: {}.".format(str(e)))
 
-init()
+try:
+    init()
+except Exception as e:
+    logger.exception(str(e))
 
 
 @oasis_log_utils.oasis_log()
 @APP.route(os.path.join(SERVICE_BASE_URL, "healthcheck"), methods=['GET'])
 def get_healthcheck():
-    '''
+    """
     Healthcheck response.
-    '''
+    """
     return "OK\n"
 
 
 @oasis_log_utils.oasis_log()
 @APP.route(os.path.join(SERVICE_BASE_URL, "get_keys"), methods=['POST'])
 def get_keys():
-    '''
+    """
     Do a lookup on posted location data.
-    '''
+    """
     response = res_data = None
 
     try:
@@ -205,9 +201,9 @@ def get_keys():
 
 @oasis_log_utils.oasis_log()
 def process_csv(is_gzipped=False):
-    '''
+    """
     Process locations posted as CSV data.
-    '''
+    """
     loc_data = (
         gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
         else request.data.decode('utf-8')
@@ -225,9 +221,9 @@ def process_csv(is_gzipped=False):
 
 @oasis_log_utils.oasis_log()
 def process_json(is_gzipped=False):
-    '''
+    """
     Process locations posted as JSON data.
-    '''
+    """
     loc_data = (
         gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
         else request.data.decode('utf-8')
@@ -244,5 +240,4 @@ def process_json(is_gzipped=False):
 
 
 if __name__ == '__main__':
-    init()
     APP.run(debug=True, host='0.0.0.0', port=5000)
