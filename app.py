@@ -96,17 +96,21 @@ def init():
     PORT = CONFIG_PARSER.get('Default', 'PORT')
 
     # Check that the keys data directory exists
-    KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
-    if not os.path.isdir(KEYS_DATA_DIRECTORY):
-        raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
+    if RUN_MODE == 'live':
+        KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
+        if not os.path.isdir(KEYS_DATA_DIRECTORY):
+            raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
 
     # Check the model version file exists
-    MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
-    if not os.path.isfile(MODEL_VERSION_FILE):
-        raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
+    if RUN_MODE == 'live':
+        MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
+        if not os.path.isfile(MODEL_VERSION_FILE):
+            raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
 
-    with open(MODEL_VERSION_FILE) as f:
-        SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+        with open(MODEL_VERSION_FILE) as f:
+            SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+    else:
+        SUPPLIER, MODEL_NAME, MODEL_VERSION = "TEST", "TEST", "TEST"
         
     logger.info("Supplier: {}.".format(SUPPLIER))
     logger.info("Model name: {}.".format(MODEL_NAME))
