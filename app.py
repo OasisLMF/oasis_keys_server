@@ -110,7 +110,7 @@ def init():
         with open(MODEL_VERSION_FILE) as f:
             SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
     else:
-        SUPPLIER, MODEL_NAME, MODEL_VERSION = "TEST", "TEST", "TEST"
+        SUPPLIER = MODEL_NAME = MODEL_VERSION = "TEST"
         
     logger.info("Supplier: {}.".format(SUPPLIER))
     logger.info("Model name: {}.".format(MODEL_NAME))
