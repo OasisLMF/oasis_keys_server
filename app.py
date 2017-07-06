@@ -39,7 +39,6 @@ from .utils import (
 # Module-level variables (globals)
 APP = None
 CONFIG_PARSER = None
-RUN_MODE = None
 logger = None
 KEYS_DATA_DIRECTORY = None
 MODEL_VERSION_FILE = None
@@ -58,7 +57,6 @@ def init():
     """
     global APP
     global CONFIG_PARSER
-    global RUN_MODE
     global logger
     global DO_GZIP_RESPONSE
     global KEYS_DATA_DIRECTORY
@@ -80,11 +78,6 @@ def init():
     cwd = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     CONFIG_PARSER.read(os.path.abspath(os.path.join(cwd, 'KeysServer.ini')))
 
-    # Get run mode - could be 'live' if production mode or 'test' if not. This
-    # could be used to conditionally execute or not execute parts of the
-    # initialisation code
-    RUN_MODE = CONFIG_PARSER.get('Default', 'RUN_MODE')
-
     # Logging configuration
     oasis_log_utils.read_log_config(CONFIG_PARSER)
 
@@ -96,21 +89,17 @@ def init():
     PORT = CONFIG_PARSER.get('Default', 'PORT')
 
     # Check that the keys data directory exists
-    if RUN_MODE == 'live':
-        KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
-        if not os.path.isdir(KEYS_DATA_DIRECTORY):
-            raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
+    KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
+    if not os.path.isdir(KEYS_DATA_DIRECTORY):
+        raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
 
     # Check the model version file exists
-    if RUN_MODE == 'live':
-        MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
-        if not os.path.isfile(MODEL_VERSION_FILE):
-            raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
+    MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
+    if not os.path.isfile(MODEL_VERSION_FILE):
+        raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
 
         with open(MODEL_VERSION_FILE) as f:
             SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
-    else:
-        SUPPLIER = MODEL_NAME = MODEL_VERSION = "TEST"
         
     logger.info("Supplier: {}.".format(SUPPLIER))
     logger.info("Model name: {}.".format(MODEL_NAME))
