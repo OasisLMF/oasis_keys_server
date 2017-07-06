@@ -98,8 +98,8 @@ def init():
     if not os.path.isfile(MODEL_VERSION_FILE):
         raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
 
-        with open(MODEL_VERSION_FILE) as f:
-            SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+    with open(MODEL_VERSION_FILE) as f:
+        SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
         
     logger.info("Supplier: {}.".format(SUPPLIER))
     logger.info("Model name: {}.".format(MODEL_NAME))
