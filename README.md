@@ -22,10 +22,8 @@ The Sphinx documentation source files are reStructuredText files, and are contai
 
     make html
 
-in the `docs` folder. You should see a new set of HTML files and assets in the `docs/_build/html` subfolder (the build directory can be changed to `docs` itself in the `Makefile` but that is not recommended). Now copy the files to the publication repository using
+in the `docs` folder. You should see a new set of HTML files and assets in the `_build/html` subfolder (the build directory can be changed to `docs` itself in the `Makefile` but that is not recommended). Now copy the files to the publication repository using
 
     cp -R _build/html/* /path/to/your/OasisLMF.github.io/oasis_keys_server/
 
 Add and `git` commit the new files in the publication repository, and this will automatically publish the new documents to the publication site https://oasislmf.github.io.
-
-
