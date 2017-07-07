@@ -4,10 +4,7 @@ __all__ = [
 
 import keys_server
 
-from oasis_utils import (
-    oasis_utils,
-    oasis_log_utils,
-)
+from oasis_utils import oasis_log_utils
 
 # Initialise keys lookup service
 @oasis_log_utils.oasis_log()
