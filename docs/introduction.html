@@ -41,9 +41,78 @@
             
   <div class="section" id="oasis-keys-server">
 <h1><cite>oasis_keys_server</cite><a class="headerlink" href="#oasis-keys-server" title="Permalink to this headline">¶</a></h1>
-<p>Oasis Flask app that handles keys requests.</p>
+<p>Oasis Flask app which handles keys requests. Includes the <cite>oasis_keys_lookup</cite> subpackage containing base classes which server as templates/interfaces for model keys lookup classes.</p>
 <div class="section" id="oasis-keys-server-app">
 <h2>oasis_keys_server.app<a class="headerlink" href="#oasis-keys-server-app" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-oasis_keys_lookup.OasisBaseKeysLookup">
+<span id="oasis-keys-lookup-oasisbasekeyslookup"></span><h2>oasis_keys_lookup.OasisBaseKeysLookup<a class="headerlink" href="#module-oasis_keys_lookup.OasisBaseKeysLookup" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup">
+<em class="property">class </em><code class="descclassname">oasis_keys_lookup.OasisBaseKeysLookup.</code><code class="descname">OasisBaseKeysLookup</code><span class="sig-paren">(</span><em>keys_data_directory='/var/oasis/keys_data'</em>, <em>supplier=None</em>, <em>model_name=None</em>, <em>model_version=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>A base class / interface that serves a template for model-specific keys
+lookup classes.</p>
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>keys_data_directory='/var/oasis/keys_data'</em>, <em>supplier=None</em>, <em>model_name=None</em>, <em>model_version=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_id">
+<code class="descname">_get_area_peril_id</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_area_peril_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the area peril ID for a particular location record.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_ids">
+<code class="descname">_get_area_peril_ids</code><span class="sig-paren">(</span><em>loc_data</em>, <em>include_context=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_area_peril_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates area peril IDs in two modes - if include_context is
+True (default) it will generate location records/rows including
+the area peril IDs, otherwise it will generate pairs of location
+IDs and the corresponding area peril IDs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_location_record">
+<code class="descname">_get_location_record</code><span class="sig-paren">(</span><em>raw_loc_item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_location_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_location_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of standard location keys and values based on
+a raw location item, which could be a Pandas or Geopandas dataframe
+row or a string representing a line from a CSV file, or a list or
+tuple.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_lookup_success">
+<code class="descname">_get_lookup_success</code><span class="sig-paren">(</span><em>ap_id</em>, <em>vul_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_lookup_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_lookup_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the status of the keys lookup.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_id">
+<code class="descname">_get_vulnerability_id</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_vulnerability_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the vulnerability ID for a particular location record.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_ids">
+<code class="descname">_get_vulnerability_ids</code><span class="sig-paren">(</span><em>loc_data</em>, <em>include_context=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_vulnerability_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates vulnerability IDs in two modes - if include_context is
+True (default) it will generate location records/rows including
+the area peril IDs, otherwise it will generate pairs of location
+IDs and the corresponding vulnerability IDs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.process_locations">
+<code class="descname">process_locations</code><span class="sig-paren">(</span><em>loc_data</em>, <em>mime_type=&lt;sphinx.ext.autodoc._MockObject object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup.process_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.process_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in raw location rows from request data and generate exposure
+records. The request content MIME type is assumed to be CSV, but can be
+explicitly set to JSON by the caller.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -57,6 +126,7 @@
   <ul>
 <li><a class="reference internal" href="#"><cite>oasis_keys_server</cite></a><ul>
 <li><a class="reference internal" href="#oasis-keys-server-app">oasis_keys_server.app</a></li>
+<li><a class="reference internal" href="#module-oasis_keys_lookup.OasisBaseKeysLookup">oasis_keys_lookup.OasisBaseKeysLookup</a></li>
 </ul>
 </li>
 </ul>
