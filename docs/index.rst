@@ -10,6 +10,7 @@ Welcome to oasis_keys_server's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   repository-management
    introduction
 
 Indices and tables
