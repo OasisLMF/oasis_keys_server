@@ -1,5 +1,6 @@
-``oasis_keys_server`` @ GitHub
-==============================
+============================
+`oasis_keys_server` @ GitHub
+============================
 
 A Flask application used to implement Oasis model keys servers.
 
