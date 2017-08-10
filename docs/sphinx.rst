@@ -39,14 +39,6 @@ copy the files from ``_build/html`` to ``docs`` using
     cp -R _build/html/* .
 
 Add and commit these files to the local repository, and then update the
-remote repository on GitHub. Then copy the same files to the Oasis API
-server docs static subfolder in the publication repository
-
-::
-
-    cp -R _build/html/* /path/to/your/OasisLMF.github.io/oasis_keys_server/
-
-Add and commit the new files in the publication repository, and then
-update the remote repository on GitHub - GitHub pages will automatically
-publish the new documents to the documentation site
+remote repository on GitHub - GitHub pages will automatically publish
+the new documents to the documentation site
 https://oasislmf.github.io/oasis_keys_server/.

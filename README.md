@@ -41,18 +41,14 @@ You should see a new set of HTML files and assets in the `_build/html` subfolder
 
     cp -R _build/html/* .
 
-Add and commit these files to the local repository, and then update the remote repository on GitHub. Then copy the same files to the Oasis API server docs static subfolder in the publication repository
-
-    cp -R _build/html/* /path/to/your/OasisLMF.github.io/oasis_keys_server/
-
-Add and commit the new files in the publication repository, and then update the remote repository on GitHub - GitHub pages will automatically publish the new documents to the documentation site https://oasislmf.github.io/oasis_keys_server/.
+Add and commit these files to the local repository, and then update the remote repository on GitHub - GitHub pages will automatically publish the new documents to the documentation site https://oasislmf.github.io/oasis_keys_server/.
 
 # First Steps
 
 After cloning the repository (see the GitHub instructions on repository home page) and entering the repository folder you should install the package requirements using
 
-sudo pip install -r requirements.txt
+    sudo pip install -r requirements.txt
 
-(You may need to omit the sudo if you are in a virtualenv.)
+(You may need to omit the `sudo` if you are in a virtual environment.)
 
-Provided that sys.path contains the absolute path to the repository folder you can now import the package or its components in the normal way.
+Provided that `sys.path` contains the absolute path to the repository folder you can now import the package or its components in the normal way.
