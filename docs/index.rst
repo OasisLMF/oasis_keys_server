@@ -3,16 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-===================
-`oasis_keys_server`
-===================
+``oasis_keys_server``
+=====================
+
+Oasis Flask app that handles keys requests from Flamingo. Includes the `oasis_keys_lookup` subpackage containing base classes that as serve as templates/interfaces for model keys lookup classes.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    repository-management
-   introduction
+   sphinx
+   first-steps
+   modules
 
 Indices and tables
 ==================

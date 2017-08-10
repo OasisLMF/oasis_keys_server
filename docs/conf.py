@@ -85,7 +85,11 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 # Autodoc mock imports - skip the following imports
-autodoc_mock_imports = ['keys_server', 'oasis_utils']
+autodoc_mock_imports = [
+    'keys_server',
+    'oasis_utils',
+    'oasis_log_utils'
+]
 
 
 # -- Options for HTML output ----------------------------------------------
