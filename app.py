@@ -1,7 +1,3 @@
-__all__ = [
-    'APP'
-]
-
 """
 Flask application for Oasis keys service.
 
