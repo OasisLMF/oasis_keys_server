@@ -89,6 +89,7 @@ def init():
     KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
     if not os.path.isdir(KEYS_DATA_DIRECTORY):
         raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
+    logger.info('Keys data directory: {}'.format(KEYS_DATA_DIRECTORY))
 
     # Check the model version file exists
     MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
