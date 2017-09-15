@@ -26,6 +26,7 @@ from flask import (
 from oasis_utils import (
     oasis_utils,
     oasis_log_utils,
+    oasis_sys_utils,
 )
 
 from .utils import (
@@ -177,7 +178,7 @@ def get_keys():
         res_data = json.dumps(data_dict).encode('utf8')
 
         if DO_GZIP_RESPONSE:
-            res_data = gzip.zlib.compress(res_data)
+            res_data = oasis_sys_utils.compress_data(res_data)
 
         response = Response(
             res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype=oasis_utils.MIME_TYPE_JSON
