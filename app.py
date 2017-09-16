@@ -86,7 +86,7 @@ def init():
     PORT = CONFIG_PARSER.get('Default', 'PORT')
 
     # Check that the keys data directory exists
-    KEYS_DATA_DIRECTORY = os.path.join(os.sep, 'var', 'oasis', 'keys_data')
+    KEYS_DATA_DIRECTORY = CONFIG_PARSER.get('Default', 'KEYS_DATA_DIRECTORY')
     if not os.path.isdir(KEYS_DATA_DIRECTORY):
         raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
     logger.info('Keys data directory: {}'.format(KEYS_DATA_DIRECTORY))
