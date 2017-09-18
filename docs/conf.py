@@ -24,6 +24,10 @@ sys.path.insert(0, os.path.abspath(cwd))
 sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..', '..')))
 
+for p in sys.path:
+    print 'sys.path: {}'.format(p)
+
+
 
 # -- General configuration ------------------------------------------------
 
@@ -86,9 +90,9 @@ todo_include_todos = True
 
 # Autodoc mock imports - skip the following imports
 autodoc_mock_imports = [
-    'keys_server',
-    'oasis_utils',
-    'oasis_log_utils'
+    'keys_server'
+    #'oasis_utils',
+    #'oasis_log_utils'
 ]
 
 

@@ -110,18 +110,21 @@ def init():
     # Creating the keys lookup instance
     try:
         keys_lookup = get_keys_lookup_instance(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
-        logging.info("Loaded keys lookup service {}".format(keys_lookup))
+        logger.info("Loaded keys lookup service {}".format(keys_lookup))
     except Exception as e:
         raise Exception("Error in loading keys lookup service: {}.".format(str(e)))
 
 try:
     init()
 except Exception as e:
-    logger.exception(str(e))
+    all_vars_dict = dict(globals())
+    all_vars_dict.update(locals())
+    if all_vars_dict['logger']:
+        logger.exception(str(e))
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL, "healthcheck"), methods=['GET'])
+@APP.route(os.path.join(SERVICE_BASE_URL if SERVICE_BASE_URL else '/', "healthcheck"), methods=['GET'])
 def healthcheck():
     """
     Healthcheck response.
@@ -130,7 +133,7 @@ def healthcheck():
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL, "get_keys"), methods=['POST'])
+@APP.route(os.path.join(SERVICE_BASE_URL if SERVICE_BASE_URL else '/', "get_keys"), methods=['POST'])
 def get_keys():
     """
     Do a lookup on posted location data.
