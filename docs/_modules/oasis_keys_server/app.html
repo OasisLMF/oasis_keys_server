@@ -56,8 +56,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">ConfigParser</span> <span class="k">import</span> <span class="n">ConfigParser</span>
-
 <span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">Flask</span><span class="p">,</span>
     <span class="n">request</span><span class="p">,</span>
@@ -76,6 +74,8 @@
 
 <span class="c1"># Module-level variables (globals)</span>
 <span class="n">APP</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">CWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">KEYS_SERVER_INI_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;KeysServer.ini&#39;</span><span class="p">)</span>
 <span class="n">CONFIG_PARSER</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">KEYS_DATA_DIRECTORY</span> <span class="o">=</span> <span class="kc">None</span>
@@ -94,6 +94,8 @@
 <span class="sd">    App initialisation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">APP</span>
+    <span class="k">global</span> <span class="n">CWD</span>
+    <span class="k">global</span> <span class="n">KEYS_SERVER_INI_FILE</span>
     <span class="k">global</span> <span class="n">CONFIG_PARSER</span>
     <span class="k">global</span> <span class="n">logger</span>
     <span class="k">global</span> <span class="n">DO_GZIP_RESPONSE</span>
@@ -111,10 +113,9 @@
     <span class="c1"># Get the Flask app</span>
     <span class="n">APP</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-    <span class="c1"># Load keys server config settings</span>
-    <span class="n">CONFIG_PARSER</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
-    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
-    <span class="n">CONFIG_PARSER</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s1">&#39;KeysServer.ini&#39;</span><span class="p">)))</span>
+    <span class="c1"># Load INI file into config params dict</span>
+    <span class="n">CONFIG_PARSER</span> <span class="o">=</span> <span class="n">oasis_sys_utils</span><span class="o">.</span><span class="n">load_ini_file</span><span class="p">(</span><span class="n">KEYS_SERVER_INI_FILE</span><span class="p">)</span>
+    <span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;LOG_FILE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;LOG_FILE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%LOG_DIRECTORY%&#39;</span><span class="p">,</span> <span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;LOG_DIRECTORY&#39;</span><span class="p">])</span>
 
     <span class="c1"># Logging configuration</span>
     <span class="n">oasis_log_utils</span><span class="o">.</span><span class="n">read_log_config</span><span class="p">(</span><span class="n">CONFIG_PARSER</span><span class="p">)</span>
@@ -123,11 +124,11 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting keys service.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Get Gzip response and port settings</span>
-    <span class="n">DO_GZIP_RESPONSE</span> <span class="o">=</span> <span class="n">CONFIG_PARSER</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;Default&#39;</span><span class="p">,</span> <span class="s1">&#39;DO_GZIP_RESPONSE&#39;</span><span class="p">)</span>
-    <span class="n">PORT</span> <span class="o">=</span> <span class="n">CONFIG_PARSER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Default&#39;</span><span class="p">,</span> <span class="s1">&#39;PORT&#39;</span><span class="p">)</span>
+    <span class="n">DO_GZIP_RESPONSE</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;DO_GZIP_RESPONSE&#39;</span><span class="p">])</span>
+    <span class="n">PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;PORT&#39;</span><span class="p">])</span>
 
     <span class="c1"># Check that the keys data directory exists</span>
-    <span class="n">KEYS_DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;oasis&#39;</span><span class="p">,</span> <span class="s1">&#39;keys_data&#39;</span><span class="p">)</span>
+    <span class="n">KEYS_DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">CONFIG_PARSER</span><span class="p">[</span><span class="s1">&#39;KEYS_DATA_DIRECTORY&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">KEYS_DATA_DIRECTORY</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Keys data directory not found: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">KEYS_DATA_DIRECTORY</span><span class="p">))</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Keys data directory: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">KEYS_DATA_DIRECTORY</span><span class="p">))</span>
@@ -150,18 +151,21 @@
     <span class="c1"># Creating the keys lookup instance</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">keys_lookup</span> <span class="o">=</span> <span class="n">get_keys_lookup_instance</span><span class="p">(</span><span class="n">KEYS_DATA_DIRECTORY</span><span class="p">,</span> <span class="n">SUPPLIER</span><span class="p">,</span> <span class="n">MODEL_NAME</span><span class="p">,</span> <span class="n">MODEL_VERSION</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded keys lookup service </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keys_lookup</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded keys lookup service </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keys_lookup</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Error in loading keys lookup service: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span></div>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">init</span><span class="p">()</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="n">all_vars_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">globals</span><span class="p">())</span>
+    <span class="n">all_vars_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">all_vars_dict</span><span class="p">[</span><span class="s1">&#39;logger&#39;</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="healthcheck"><a class="viewcode-back" href="../../modules.html#oasis_keys_server.app.healthcheck">[docs]</a><span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
-<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">,</span> <span class="s2">&quot;healthcheck&quot;</span><span class="p">),</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s2">&quot;healthcheck&quot;</span><span class="p">),</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">healthcheck</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Healthcheck response.</span>
@@ -170,7 +174,7 @@
 
 
 <div class="viewcode-block" id="get_keys"><a class="viewcode-back" href="../../modules.html#oasis_keys_server.app.get_keys">[docs]</a><span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
-<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">,</span> <span class="s2">&quot;get_keys&quot;</span><span class="p">),</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s2">&quot;get_keys&quot;</span><span class="p">),</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">get_keys</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Do a lookup on posted location data.</span>

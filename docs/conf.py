@@ -24,10 +24,6 @@ sys.path.insert(0, os.path.abspath(cwd))
 sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(cwd, '..', '..')))
 
-for p in sys.path:
-    print 'sys.path: {}'.format(p)
-
-
 
 # -- General configuration ------------------------------------------------
 
