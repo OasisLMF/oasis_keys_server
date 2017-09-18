@@ -15,8 +15,6 @@ import math
 import os
 import sys
 
-from ConfigParser import ConfigParser
-
 from flask import (
     Flask,
     request,
@@ -74,13 +72,9 @@ def init():
     # Get the Flask app
     APP = Flask(__name__)
 
-    # Make substitutions in the keys server INI file
-    ini_settings = oasis_sys_utils.load_ini_file(KEYS_SERVER_INI_FILE)
-    replace_in_file(KEYS_SERVER_INI_FILE, KEYS_SERVER_INI_FILE, ['%LOG_DIRECTORY%'], [ini_settings['LOG_DIRECTORY']])
-
-    # Load keys server config settings
-    CONFIG_PARSER = ConfigParser()
-    CONFIG_PARSER.read(KEYS_SERVER_INI_FILE)
+    # Load INI file into config params dict
+    CONFIG_PARSER = oasis_sys_utils.load_ini_file(KEYS_SERVER_INI_FILE)
+    CONFIG_PARSER['LOG_FILE'] = CONFIG_PARSER['LOG_FILE'].replace('%LOG_DIRECTORY%', CONFIG_PARSER['LOG_DIRECTORY'])
 
     # Logging configuration
     oasis_log_utils.read_log_config(CONFIG_PARSER)
@@ -89,11 +83,11 @@ def init():
     logger.info("Starting keys service.")
 
     # Get Gzip response and port settings
-    DO_GZIP_RESPONSE = CONFIG_PARSER.getboolean('Default', 'DO_GZIP_RESPONSE')
-    PORT = CONFIG_PARSER.get('Default', 'PORT')
+    DO_GZIP_RESPONSE = bool(CONFIG_PARSER['DO_GZIP_RESPONSE'])
+    PORT = int(CONFIG_PARSER['PORT'])
 
     # Check that the keys data directory exists
-    KEYS_DATA_DIRECTORY = CONFIG_PARSER.get('Default', 'KEYS_DATA_DIRECTORY')
+    KEYS_DATA_DIRECTORY = CONFIG_PARSER['KEYS_DATA_DIRECTORY']
     if not os.path.isdir(KEYS_DATA_DIRECTORY):
         raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
     logger.info('Keys data directory: {}'.format(KEYS_DATA_DIRECTORY))
