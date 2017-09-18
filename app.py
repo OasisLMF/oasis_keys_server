@@ -35,7 +35,7 @@ from .utils import (
 
 # Module-level variables (globals)
 APP = None
-CWD = os.getcwd()
+CWD = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 KEYS_SERVER_INI_FILE = os.path.join(CWD, 'KeysServer.ini')
 CONFIG_PARSER = None
 logger = None
@@ -80,8 +80,7 @@ def init():
 
     # Load keys server config settings
     CONFIG_PARSER = ConfigParser()
-    cwd = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    CONFIG_PARSER.read(os.path.abspath(os.path.join(cwd, 'KeysServer.ini')))
+    CONFIG_PARSER.read(KEYS_SERVER_INI_FILE)
 
     # Logging configuration
     oasis_log_utils.read_log_config(CONFIG_PARSER)
