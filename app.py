@@ -35,6 +35,8 @@ from .utils import (
 
 # Module-level variables (globals)
 APP = None
+CWD = os.getcwd()
+KEYS_SERVER_INI_FILE = os.path.join(CWD, 'KeysServer.ini')
 CONFIG_PARSER = None
 logger = None
 KEYS_DATA_DIRECTORY = None
@@ -53,6 +55,8 @@ def init():
     App initialisation.
     """
     global APP
+    global CWD
+    global KEYS_SERVER_INI_FILE
     global CONFIG_PARSER
     global logger
     global DO_GZIP_RESPONSE
@@ -69,6 +73,10 @@ def init():
 
     # Get the Flask app
     APP = Flask(__name__)
+
+    # Make substitutions in the keys server INI file
+    ini_settings = oasis_sys_utils.load_ini_file(KEYS_SERVER_INI_FILE)
+    replace_in_file(KEYS_SERVER_INI_FILE, KEYS_SERVER_INI_FILE, ['%LOG_DIRECTORY%'], [ini_settings['LOG_DIRECTORY']])
 
     # Load keys server config settings
     CONFIG_PARSER = ConfigParser()
