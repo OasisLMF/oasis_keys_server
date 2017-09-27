@@ -170,8 +170,12 @@ def get_keys():
         )
 
         lookup_results = []
-        for location in keys_lookup.process_locations(loc_data, mime_type=mime_type):
-            lookup_results.append(location)
+        for location_rec in keys_lookup.process_locations(loc_data, mime_type=mime_type):
+            if type(location_rec) in [list, tuple]:
+                for rec in location_rec:
+                    lookup_results.append(rec)
+            else:
+                lookup_results.append(location_record)
 
         logger.info('### {} Exposure records: {}'.format(len(lookup_results), lookup_results))
 
