@@ -177,7 +177,7 @@ def get_keys():
             else:
                 lookup_results.append(location_rec)
 
-        logger.info('### {} Exposure records: {}'.format(len(lookup_results), lookup_results))
+        logger.info('### {} exposure records generated'.format(len(lookup_results)))
 
         data_dict = {
             "status": 'success',
