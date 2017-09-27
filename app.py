@@ -175,7 +175,7 @@ def get_keys():
                 for rec in location_rec:
                     lookup_results.append(rec)
             else:
-                lookup_results.append(location_record)
+                lookup_results.append(location_rec)
 
         logger.info('### {} Exposure records: {}'.format(len(lookup_results), lookup_results))
 
