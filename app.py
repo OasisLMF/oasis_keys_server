@@ -194,7 +194,8 @@ def get_keys():
         )
 
         if DO_GZIP_RESPONSE:
-            response.headers['Content-Encoding'] = 'gzip'
+            response.headers['Content-Encoding'] = 'deflate'
+            response.headers['Content-Length'] = str(len(res_data))
     except Exception as e:
         logger.exception("Keys lookup error: {}.".format(str(e)))
         response = Response(
