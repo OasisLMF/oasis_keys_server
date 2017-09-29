@@ -235,7 +235,8 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">DO_GZIP_RESPONSE</span><span class="p">:</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Encoding&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;gzip&#39;</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Encoding&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;deflate&#39;</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">res_data</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Keys lookup error: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">Response</span><span class="p">(</span>
