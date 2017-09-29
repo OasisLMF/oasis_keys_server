@@ -211,10 +211,14 @@
         <span class="p">)</span>
 
         <span class="n">lookup_results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">keys_lookup</span><span class="o">.</span><span class="n">process_locations</span><span class="p">(</span><span class="n">loc_data</span><span class="p">,</span> <span class="n">mime_type</span><span class="o">=</span><span class="n">mime_type</span><span class="p">):</span>
-            <span class="n">lookup_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">location_rec</span> <span class="ow">in</span> <span class="n">keys_lookup</span><span class="o">.</span><span class="n">process_locations</span><span class="p">(</span><span class="n">loc_data</span><span class="p">,</span> <span class="n">mime_type</span><span class="o">=</span><span class="n">mime_type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">location_rec</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">location_rec</span><span class="p">:</span>
+                    <span class="n">lookup_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lookup_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">location_rec</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;### </span><span class="si">{}</span><span class="s1"> Exposure records: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lookup_results</span><span class="p">),</span> <span class="n">lookup_results</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;### </span><span class="si">{}</span><span class="s1"> exposure records generated&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lookup_results</span><span class="p">)))</span>
 
         <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s1">&#39;success&#39;</span><span class="p">,</span>
@@ -273,7 +277,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017, Oasis Loss Modelling Framework (v. 0.7, 12 August, 2017)..
+      &copy;2017, Oasis Loss Modelling Framework (v. 0.8, 28 September, 2017)..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
