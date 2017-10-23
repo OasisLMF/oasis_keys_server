@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __all__ = [
     'get_keys_lookup_instance'
 ]
