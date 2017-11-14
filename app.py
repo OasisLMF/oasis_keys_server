@@ -14,6 +14,7 @@ import io
 import json
 import logging
 import math
+import pandas as pd
 import os
 import sys
 
@@ -171,8 +172,15 @@ def get_keys():
             else oasis_utils.MIME_TYPE_JSON
         )
 
+        loc_df = (
+            pd.read_csv(io.StringIO(loc_data)) if mime_type == oasis_utils.MIME_TYPE_CSV
+            else pd.read_json(io.StringIO(loc_data))
+        )
+        loc_df = loc_df.where(loc_df.notnull(), None)
+        loc_df.columns = map(str.lower, loc_df.columns)
+
         lookup_results = []
-        for location_rec in keys_lookup.process_locations(loc_data, mime_type=mime_type):
+        for location_rec in keys_lookup.process_locations(loc_df):
             if type(location_rec) in [list, tuple]:
                 for rec in location_rec:
                     lookup_results.append(rec)

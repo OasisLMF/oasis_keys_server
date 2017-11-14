@@ -1,0 +1,183 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup &#8212; oasis_keys_server 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;OasisBaseKeysLookup&#39;</span>
+<span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">oasis_utils</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">oasis_utils</span><span class="p">,</span>
+    <span class="n">oasis_log_utils</span><span class="p">,</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="OasisBaseKeysLookup"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup">[docs]</a><span class="k">class</span> <span class="nc">OasisBaseKeysLookup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class / interface that serves a template for model-specific keys</span>
+<span class="sd">    lookup classes.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OasisBaseKeysLookup.__init__"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.__init__">[docs]</a>    <span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">keys_data_directory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;oasis&#39;</span><span class="p">,</span> <span class="s1">&#39;keys_data&#39;</span><span class="p">),</span>
+        <span class="n">supplier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_version</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys_data_directory</span> <span class="o">=</span> <span class="n">keys_data_directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supplier</span> <span class="o">=</span> <span class="n">supplier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_version</span> <span class="o">=</span> <span class="n">model_version</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup.process_locations"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.process_locations">[docs]</a>    <span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">process_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process location rows - passed in as a pandas dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_location_record"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_location_record">[docs]</a>    <span class="k">def</span> <span class="nf">_get_location_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_loc_item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict of standard location keys and values based on</span>
+<span class="sd">        a raw location item, which is a row in a Pandas dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_area_peril_id"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_id">[docs]</a>    <span class="k">def</span> <span class="nf">_get_area_peril_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the area peril ID for a particular location record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">UNKNOWN_ID</span><span class="p">,</span> <span class="s2">&quot;Not implemented&quot;</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_vulnerability_id"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_id">[docs]</a>    <span class="k">def</span> <span class="nf">_get_vulnerability_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the vulnerability ID for a particular location record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">UNKNOWN_ID</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Not implemented&quot;</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_area_peril_ids"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_ids">[docs]</a>    <span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_area_peril_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc_data</span><span class="p">,</span> <span class="n">include_context</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates area peril IDs in two modes - if include_context is</span>
+<span class="sd">        True (default) it will generate location records/rows including</span>
+<span class="sd">        the area peril IDs, otherwise it will generate pairs of location</span>
+<span class="sd">        IDs and the corresponding area peril IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_vulnerability_ids"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_ids">[docs]</a>    <span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_vulnerability_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc_data</span><span class="p">,</span> <span class="n">include_context</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates vulnerability IDs in two modes - if include_context is</span>
+<span class="sd">        True (default) it will generate location records/rows including</span>
+<span class="sd">        the area peril IDs, otherwise it will generate pairs of location</span>
+<span class="sd">        IDs and the corresponding vulnerability IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OasisBaseKeysLookup._get_lookup_success"><a class="viewcode-back" href="../../../modules.html#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_lookup_success">[docs]</a>    <span class="k">def</span> <span class="nf">_get_lookup_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ap_id</span><span class="p">,</span> <span class="n">vul_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the status of the keys lookup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">KEYS_STATUS_SUCCESS</span>
+        <span class="k">if</span> <span class="n">ap_id</span> <span class="o">==</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">UNKNOWN_ID</span> <span class="ow">or</span> <span class="n">vul_id</span> <span class="o">==</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">UNKNOWN_ID</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">KEYS_STATUS_NOMATCH</span>
+        <span class="k">return</span> <span class="n">status</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Oasis Loss Modelling Framework (v. 0.8, 28 September, 2017)..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
