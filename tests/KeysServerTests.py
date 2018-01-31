@@ -44,7 +44,7 @@ import unittest
 
 import requests
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.pardir, os.pardir)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir)))
 
 from oasis_utils import (
     load_ini_file,
