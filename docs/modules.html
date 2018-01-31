@@ -73,53 +73,34 @@ Processes the data sequentially - should be made multi-threaded.</p>
 <dd><p>A base class / interface that serves a template for model-specific keys
 lookup classes.</p>
 <dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_id">
-<code class="descname">_get_area_peril_id</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_area_peril_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the area peril ID for a particular location record.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_ids">
-<code class="descname">_get_area_peril_ids</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_area_peril_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_area_peril_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates area peril IDs in two modes - if include_context is
-True (default) it will generate location records/rows including
-the area peril IDs, otherwise it will generate pairs of location
-IDs and the corresponding area peril IDs.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_location_record">
-<code class="descname">_get_location_record</code><span class="sig-paren">(</span><em>raw_loc_item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_location_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_location_record" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dict of standard location keys and values based on
-a raw location item, which is a row in a Pandas dataframe.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_lookup_success">
-<code class="descname">_get_lookup_success</code><span class="sig-paren">(</span><em>ap_id</em>, <em>vul_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_lookup_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_lookup_success" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the status of the keys lookup.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_id">
-<code class="descname">_get_vulnerability_id</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_vulnerability_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the vulnerability ID for a particular location record.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_ids">
-<code class="descname">_get_vulnerability_ids</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup._get_vulnerability_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup._get_vulnerability_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates vulnerability IDs in two modes - if include_context is
-True (default) it will generate location records/rows including
-the area peril IDs, otherwise it will generate pairs of location
-IDs and the corresponding vulnerability IDs.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.process_locations">
 <code class="descname">process_locations</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/oasis_keys_lookup/OasisBaseKeysLookup.html#OasisBaseKeysLookup.process_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup.OasisBaseKeysLookup.process_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process location rows - passed in as a pandas dataframe.</p>
 </dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-oasis_keys_server.tests.KeysServerTests">
+<span id="oasis-keys-server-tests"></span><h2><code class="docutils literal"><span class="pre">oasis_keys_server.tests</span></code><a class="headerlink" href="#module-oasis_keys_server.tests.KeysServerTests" title="Permalink to this headline">¶</a></h2>
+<p>Unit tests for a model keys server.</p>
+<dl class="class">
+<dt id="oasis_keys_server.tests.KeysServerTests.KeysServerTests">
+<em class="property">class </em><code class="descclassname">oasis_keys_server.tests.KeysServerTests.</code><code class="descname">KeysServerTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/tests/KeysServerTests.html#KeysServerTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.tests.KeysServerTests.KeysServerTests" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="oasis_keys_server.tests.KeysServerTests.KeysServerTests.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/tests/KeysServerTests.html#KeysServerTests.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.tests.KeysServerTests.KeysServerTests.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_server.tests.KeysServerTests.KeysServerTests.test_healthcheck">
+<code class="descname">test_healthcheck</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/tests/KeysServerTests.html#KeysServerTests.test_healthcheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.tests.KeysServerTests.KeysServerTests.test_healthcheck" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oasis_keys_server.tests.KeysServerTests.KeysServerTests.test_keys_request">
+<code class="descname">test_keys_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/oasis_keys_server/tests/KeysServerTests.html#KeysServerTests.test_keys_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oasis_keys_server.tests.KeysServerTests.KeysServerTests.test_keys_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -137,6 +118,7 @@ IDs and the corresponding vulnerability IDs.</p>
 <li><a class="reference internal" href="#">Module Documentation</a><ul>
 <li><a class="reference internal" href="#module-oasis_keys_server.app"><code class="docutils literal"><span class="pre">oasis_keys_server.app</span></code></a></li>
 <li><a class="reference internal" href="#module-oasis_keys_server.oasis_keys_lookup.OasisBaseKeysLookup"><code class="docutils literal"><span class="pre">oasis_keys_server.oasis_keys_lookup</span></code></a></li>
+<li><a class="reference internal" href="#module-oasis_keys_server.tests.KeysServerTests"><code class="docutils literal"><span class="pre">oasis_keys_server.tests</span></code></a></li>
 </ul>
 </li>
 </ul>
