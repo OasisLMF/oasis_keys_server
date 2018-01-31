@@ -114,7 +114,7 @@ class KeysServerTests(unittest.TestCase):
         try:
             result_dict = json.loads(res.content)
         except ValueError:
-            self.assertIsNone(result_dict)
+            self.assertIsNotNone(result_dict)
         else:
             self.assertEquals(set(result_dict.keys()), {'status', 'items'})
 
