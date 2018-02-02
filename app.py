@@ -36,8 +36,7 @@ from .utils import (
 
 # Module-level variables (globals)
 APP = None
-CWD = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-KEYS_SERVER_INI_FILE = os.path.join(CWD, 'KeysServer.ini')
+KEYS_SERVER_INI_FILE = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), 'KeysServer.ini')
 CONFIG_PARSER = None
 logger = None
 KEYS_DATA_DIRECTORY = None
@@ -56,7 +55,6 @@ def init():
     App initialisation.
     """
     global APP
-    global CWD
     global KEYS_SERVER_INI_FILE
     global CONFIG_PARSER
     global logger
@@ -87,7 +85,6 @@ def init():
 
     # Get Gzip response and port settings
     DO_GZIP_RESPONSE = bool(CONFIG_PARSER['DO_GZIP_RESPONSE'])
-    PORT = int(CONFIG_PARSER['PORT'])
 
     # Check that the keys data directory exists
     KEYS_DATA_DIRECTORY = CONFIG_PARSER['KEYS_DATA_DIRECTORY']
@@ -97,10 +94,10 @@ def init():
 
     # Check the model version file exists
     MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
-    if not os.path.isfile(MODEL_VERSION_FILE):
+    if not os.path.exists(MODEL_VERSION_FILE):
         raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
 
-    with open(MODEL_VERSION_FILE) as f:
+    with io.open(MODEL_VERSION_FILE, 'r', encoding='utf-8') as f:
         SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
         
     logger.info("Supplier: {}.".format(SUPPLIER))
@@ -132,7 +129,7 @@ def healthcheck():
     """
     Healthcheck response.
     """
-    return "OK\n\n"
+    return "OK"
 
 
 @oasis_log_utils.oasis_log()
