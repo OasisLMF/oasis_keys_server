@@ -170,19 +170,15 @@ def get_keys():
         )
 
         loc_df = (
-            pd.read_csv(io.StringIO(loc_data), float_precision='high') if mime_type == oasis_utils.MIME_TYPE_CSV
+            pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
             else pd.read_json(io.StringIO(loc_data))
         )
         loc_df = loc_df.where(loc_df.notnull(), None)
         loc_df.columns = map(unicode.lower, loc_df.columns)
 
         lookup_results = []
-        for location_rec in keys_lookup.process_locations(loc_df):
-            if type(location_rec) in [list, tuple]:
-                for rec in location_rec:
-                    lookup_results.append(rec)
-            else:
-                lookup_results.append(location_rec)
+        for record in keys_lookup.process_locations(loc_df):
+            lookup_results.append(record)
 
         logger.info('### {} exposure records generated'.format(len(lookup_results)))
 
