@@ -174,7 +174,7 @@ def get_keys():
             else pd.read_json(io.StringIO(loc_data))
         )
         loc_df = loc_df.where(loc_df.notnull(), None)
-        loc_df.columns = map(str.lower, loc_df.columns)
+        loc_df.columns = map(unicode.lower, loc_df.columns)
 
         lookup_results = []
         for location_rec in keys_lookup.process_locations(loc_df):
