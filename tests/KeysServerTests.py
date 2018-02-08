@@ -91,15 +91,58 @@ class KeysServerTests(unittest.TestCase):
         self.assertEqual(msg, 'OK')
 
 
-    def test_keys_request(self):
+    def test_keys_request_csv(self):
 
         data = None
-        with io.open(self.sample_model_exposures_file_path, 'r', encoding='utf-8') as f:
+        with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
             data = f.read().encode()
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
             'Content-Type': oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV,
+            'Content-Length': str(len(data))
+        }
+
+        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
+        res = requests.post(get_keys_url, headers=headers, data=data)
+
+        # Check that the response has a 200 status code
+        self.assertEqual(res.status_code, 200)
+
+        # Check that the response content is valid JSON and has valid content.
+        result_dict = None
+        try:
+            result_dict = json.loads(res.content)
+        except ValueError:
+            self.assertIsNotNone(result_dict)
+        else:
+            self.assertEquals(set(result_dict.keys()), {'status', 'items'})
+
+            self.assertIn(type(result_dict['status']), [str, unicode])
+
+            self.assertEquals(result_dict['status'].lower(), 'success')
+
+            self.assertEquals(type(result_dict['items']), list)
+
+            lookup_record_keys = {'id', 'peril_id', 'coverage', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
+
+            self.assertEquals(
+                all(
+                    type(r) == dict and set(r.keys()) == lookup_record_keys for r in result_dict['items']
+                ),
+                True
+            )
+
+
+    def test_keys_request_json(self):
+
+        data = None
+        with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
+            data = f.read().decode()
+
+        headers = {
+            'Accept-Encoding': 'identity,deflate,gzip,compress',
+            'Content-Type': oasis_utils.HTTP_REQUEST_CONTENT_TYPE_JSON,
             'Content-Length': str(len(data))
         }
 
