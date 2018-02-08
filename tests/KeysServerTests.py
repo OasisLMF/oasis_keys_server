@@ -96,7 +96,7 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
-            data = f.read().encode()
+            data = f.read().decode()
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
