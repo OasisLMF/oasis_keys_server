@@ -75,7 +75,8 @@ class KeysServerTests(unittest.TestCase):
                                         self.model_version
                                     )
 
-        self.sample_model_exposures_file_path = os.path.abspath(TEST_CONFIG['SAMPLE_MODEL_EXPOSURES_FILE_PATH'])
+        self.sample_csv_model_exposures_file_path = os.path.abspath(TEST_CONFIG['SAMPLE_CSV_MODEL_EXPOSURES_FILE_PATH'])
+        self.sample_json_model_exposures_file_path = os.path.abspath(TEST_CONFIG['SAMPLE_JSON_MODEL_EXPOSURES_FILE_PATH'])
 
 
     def test_healthcheck(self):
