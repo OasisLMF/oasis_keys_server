@@ -28,6 +28,7 @@ from oasis_utils import (
     oasis_utils,
     oasis_log_utils,
     oasis_sys_utils,
+    OasisException,
 )
 
 from .utils import (
@@ -89,13 +90,13 @@ def init():
     # Check that the keys data directory exists
     KEYS_DATA_DIRECTORY = CONFIG_PARSER['KEYS_DATA_DIRECTORY']
     if not os.path.isdir(KEYS_DATA_DIRECTORY):
-        raise Exception("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
+        raise OasisException("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
     logger.info('Keys data directory: {}'.format(KEYS_DATA_DIRECTORY))
 
     # Check the model version file exists
     MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
     if not os.path.exists(MODEL_VERSION_FILE):
-        raise Exception("No model version file: {}.".format(MODEL_VERSION_FILE))
+        raise OasisException("No model version file: {}.".format(MODEL_VERSION_FILE))
 
     with io.open(MODEL_VERSION_FILE, 'r', encoding='utf-8') as f:
         SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
@@ -111,12 +112,12 @@ def init():
     try:
         keys_lookup = get_keys_lookup_instance(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
         logger.info("Loaded keys lookup service {}".format(keys_lookup))
-    except Exception as e:
-        raise Exception("Error in loading keys lookup service: {}.".format(str(e)))
+    except OasisException as e:
+        raise OasisException("Error in loading keys lookup service: {}.".format(str(e)))
 
 try:
     init()
-except Exception as e:
+except OasisException as e:
     all_vars_dict = dict(globals())
     all_vars_dict.update(locals())
     if all_vars_dict['logger']:
@@ -144,13 +145,13 @@ def get_keys():
         try:
             content_type = request.headers['Content-Type']
         except KeyError:
-            pass
+            raise OasisException('Error: keys request is missing the "Content-Type" header')
         else:
             if content_type not in [
                 oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV,
                 oasis_utils.HTTP_REQUEST_CONTENT_TYPE_JSON
             ]:
-                raise Exception('Unsupported content type: "{}"'.format(content_type))
+                raise OasisException('Error: unsupported content type: "{}"'.format(content_type))
 
         try:
             is_gzipped = request.headers['Content-Encoding'] == 'gzip'
