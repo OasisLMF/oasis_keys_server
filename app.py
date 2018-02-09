@@ -13,7 +13,6 @@ import inspect
 import io
 import json
 import logging
-import math
 import pandas as pd
 import os
 import sys
@@ -201,7 +200,7 @@ def get_keys():
             response.headers['Content-Encoding'] = 'deflate'
             response.headers['Content-Length'] = str(len(res_data))
     except Exception as e:
-        logger.exception("Keys lookup error: {}.".format(str(e)))
+        logger.error("Error: {}.".format(str(e)))
         response = Response(
             status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
