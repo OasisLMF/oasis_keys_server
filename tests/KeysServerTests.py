@@ -135,6 +135,38 @@ class KeysServerTests(unittest.TestCase):
             )
 
 
+    def test_keys_request_csv__invalid_content_type(self):
+
+        data = None
+        with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
+            data = f.read().decode()
+
+        # test for unrecognised content type header
+        headers = {
+            'Accept-Encoding': 'identity,deflate,gzip,compress',
+            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Length': str(len(data))
+        }
+
+        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
+        res = requests.post(get_keys_url, headers=headers, data=data)
+
+        # Check that the response does not have a 200 status code
+        self.assertNotEqual(res.status_code, 200)
+
+        # test for missing content type header
+        headers = {
+            'Accept-Encoding': 'identity,deflate,gzip,compress',
+            'Content-Length': str(len(data))
+        }
+
+        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
+        res = requests.post(get_keys_url, headers=headers, data=data)
+
+        # Check that the response does not have a 200 status code
+        self.assertNotEqual(res.status_code, 200)
+
+
     def test_keys_request_json(self):
 
         data = None
@@ -176,6 +208,38 @@ class KeysServerTests(unittest.TestCase):
                 ),
                 True
             )
+
+
+    def test_keys_request_json__invalid_content_type(self):
+
+        data = None
+        with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
+            data = f.read().decode()
+
+        # test for unrecognised content type header
+        headers = {
+            'Accept-Encoding': 'identity,deflate,gzip,compress',
+            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Length': str(len(data))
+        }
+
+        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
+        res = requests.post(get_keys_url, headers=headers, data=data)
+
+        # Check that the response does not have a 200 status code
+        self.assertNotEqual(res.status_code, 200)
+
+        # test for missing content type header
+        headers = {
+            'Accept-Encoding': 'identity,deflate,gzip,compress',
+            'Content-Length': str(len(data))
+        }
+
+        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
+        res = requests.post(get_keys_url, headers=headers, data=data)
+
+        # Check that the response does not have a 200 status code
+        self.assertNotEqual(res.status_code, 200)
 
 
 if __name__ == '__main__':
