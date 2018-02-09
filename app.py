@@ -117,7 +117,7 @@ def init():
 
 try:
     init()
-except OasisException as e:
+except Exception as e:
     all_vars_dict = dict(globals())
     all_vars_dict.update(locals())
     if all_vars_dict['logger']:
