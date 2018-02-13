@@ -165,7 +165,7 @@
 
 
 <div class="viewcode-block" id="healthcheck"><a class="viewcode-back" href="../../modules.html#oasis_keys_server.app.healthcheck">[docs]</a><span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
-<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/healthcheck&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">)</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/healthcheck&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">)</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/healthcheck&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">healthcheck</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Healthcheck response.</span>
@@ -174,7 +174,7 @@
 
 
 <div class="viewcode-block" id="get_keys"><a class="viewcode-back" href="../../modules.html#oasis_keys_server.app.get_keys">[docs]</a><span class="nd">@oasis_log_utils</span><span class="o">.</span><span class="n">oasis_log</span><span class="p">()</span>
-<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/get_keys&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">)</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nd">@APP</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/get_keys&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERVICE_BASE_URL</span><span class="p">)</span> <span class="k">if</span> <span class="n">SERVICE_BASE_URL</span> <span class="k">else</span> <span class="s1">&#39;/get_keys&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">get_keys</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Do a lookup on posted location data.</span>

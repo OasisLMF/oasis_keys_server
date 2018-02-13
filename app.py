@@ -124,7 +124,7 @@ except Exception as e:
 
 
 @oasis_log_utils.oasis_log()
-@APP.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/', methods=['GET'])
+@APP.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/healthcheck', methods=['GET'])
 def healthcheck():
     """
     Healthcheck response.
@@ -133,7 +133,7 @@ def healthcheck():
 
 
 @oasis_log_utils.oasis_log()
-@APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/', methods=['POST'])
+@APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/get_keys', methods=['POST'])
 def get_keys():
     """
     Do a lookup on posted location data.

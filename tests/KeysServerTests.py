@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Unit tests for a model keys server.
+Integration tests for a model keys server.
 """
 
 # BSD 3-Clause License
