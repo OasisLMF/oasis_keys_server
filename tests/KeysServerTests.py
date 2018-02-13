@@ -56,7 +56,8 @@ from oasis_utils import (
 class KeysServerTests(unittest.TestCase):
 
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
 
         TEST_CONFIG = load_ini_file('KeysServerTests.ini')
 

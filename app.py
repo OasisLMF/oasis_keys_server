@@ -105,7 +105,7 @@ def init():
     logger.info("Model version: {}.".format(MODEL_VERSION))
 
     # Set the web service base URL
-    SERVICE_BASE_URL = os.path.join(os.sep, SUPPLIER, MODEL_NAME, MODEL_VERSION)
+    SERVICE_BASE_URL = '/{}/{}/{}'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION)
 
     # Creating the keys lookup instance
     try:
@@ -124,7 +124,7 @@ except Exception as e:
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL if SERVICE_BASE_URL else '/', "healthcheck"), methods=['GET'])
+@APP.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/', methods=['GET'])
 def healthcheck():
     """
     Healthcheck response.
@@ -133,7 +133,7 @@ def healthcheck():
 
 
 @oasis_log_utils.oasis_log()
-@APP.route(os.path.join(SERVICE_BASE_URL if SERVICE_BASE_URL else '/', "get_keys"), methods=['POST'])
+@APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/', methods=['POST'])
 def get_keys():
     """
     Do a lookup on posted location data.
