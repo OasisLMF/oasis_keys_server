@@ -13,9 +13,10 @@ import inspect
 import io
 import json
 import logging
-import pandas as pd
 import os
 import sys
+
+import pandas as pd
 
 from flask import (
     Flask,
@@ -46,6 +47,7 @@ MODEL_NAME = None
 MODEL_VERSION = None
 SERVICE_BASE_URL = None
 keys_lookup = None
+COMPRESS_RESPONSE = False
 
 
 # App initialisation
@@ -58,7 +60,7 @@ def init():
     global KEYS_SERVER_INI_FILE
     global CONFIG_PARSER
     global logger
-    global DO_GZIP_RESPONSE
+    global COMPRESS_RESPONSE
     global KEYS_DATA_DIRECTORY
     global MODEL_VERSION_FILE
     global MODEL_NAME
@@ -84,7 +86,7 @@ def init():
     logger.info("Starting keys service.")
 
     # Get Gzip response and port settings
-    DO_GZIP_RESPONSE = bool(CONFIG_PARSER['DO_GZIP_RESPONSE'])
+    COMPRESS_RESPONSE = bool(CONFIG_PARSER['COMPRESS_RESPONSE'])
 
     # Check that the keys data directory exists
     KEYS_DATA_DIRECTORY = CONFIG_PARSER['KEYS_DATA_DIRECTORY']
@@ -189,14 +191,14 @@ def get_keys():
 
         res_data = json.dumps(data_dict).encode('utf8')
 
-        if DO_GZIP_RESPONSE:
+        if COMPRESS_RESPONSE:
             res_data = oasis_sys_utils.compress_data(res_data)
 
         response = Response(
             res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype=oasis_utils.MIME_TYPE_JSON
         )
 
-        if DO_GZIP_RESPONSE:
+        if COMPRESS_RESPONSE:
             response.headers['Content-Encoding'] = 'deflate'
             response.headers['Content-Length'] = str(len(res_data))
     except Exception as e:
