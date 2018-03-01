@@ -24,13 +24,6 @@ from flask import (
     Response,
 )
 
-"""from oasis_utils import (
-    oasis_utils,
-    oasis_log_utils,
-    oasis_sys_utils,
-    OasisException,
-)"""
-
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
