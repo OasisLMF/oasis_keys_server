@@ -1,4 +1,4 @@
 """
     Module initialiser.
 """
-from .OasisBaseKeysLookup import *
+from OasisBaseKeysLookup import *

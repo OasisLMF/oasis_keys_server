@@ -7,9 +7,13 @@ __all__ = [
 import logging
 import os
 
-from oasis_utils import (
-    oasis_utils,
-    oasis_log_utils,
+from oasislmf.keys.lookup import UNKNOWN_ID
+
+from oasislmf.utils.log import oasis_log
+
+from oasislmf.utils.status import (
+    KEYS_STATUS_NOMATCH,
+    KEYS_STATUS_SUCCESS,
 )
 
 class OasisBaseKeysLookup(object):
@@ -19,7 +23,7 @@ class OasisBaseKeysLookup(object):
 
     """
 
-    @oasis_log_utils.oasis_log()
+    @oasis_log()
     def __init__(
         self,
         keys_data_directory=os.path.join(os.sep, 'var', 'oasis', 'keys_data'),
@@ -36,7 +40,7 @@ class OasisBaseKeysLookup(object):
         self.model_version = model_version
 
 
-    @oasis_log_utils.oasis_log()
+    @oasis_log()
     def process_locations(self, loc_df):
         """
         Process location rows - passed in as a pandas dataframe.
@@ -56,17 +60,17 @@ class OasisBaseKeysLookup(object):
         """
         Get the area peril ID for a particular location record.
         """
-        return oasis_utils.UNKNOWN_ID, "Not implemented"
+        return UNKNOWN_ID, "Not implemented"
 
 
     def _get_vulnerability_id(self, record):
         """
         Get the vulnerability ID for a particular location record.
         """
-        return oasis_utils.UNKNOWN_ID-1, "Not implemented"
+        return UNKNOWN_ID, "Not implemented"
 
 
-    @oasis_log_utils.oasis_log()
+    @oasis_log()
     def _get_area_peril_ids(self, loc_data, include_context=True):
         """
         Generates area peril IDs in two modes - if include_context is
@@ -77,7 +81,7 @@ class OasisBaseKeysLookup(object):
         pass
 
 
-    @oasis_log_utils.oasis_log()
+    @oasis_log()
     def _get_vulnerability_ids(self, loc_data, include_context=True):
         """
         Generates vulnerability IDs in two modes - if include_context is
@@ -92,8 +96,8 @@ class OasisBaseKeysLookup(object):
         """
         Determine the status of the keys lookup.
         """
-        status = oasis_utils.KEYS_STATUS_SUCCESS
-        if ap_id == oasis_utils.UNKNOWN_ID or vul_id == oasis_utils.UNKNOWN_ID:
-            status = oasis_utils.KEYS_STATUS_NOMATCH
+        status = KEYS_STATUS_SUCCESS
+        if ap_id == UNKNOWN_ID or vul_id == UNKNOWN_ID:
+            status = KEYS_STATUS_NOMATCH
         return status
 

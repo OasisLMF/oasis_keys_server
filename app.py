@@ -24,14 +24,30 @@ from flask import (
     Response,
 )
 
-from oasis_utils import (
+"""from oasis_utils import (
     oasis_utils,
     oasis_log_utils,
     oasis_sys_utils,
     OasisException,
+)"""
+
+from oasislmf.utils.compress import compress_data
+from oasislmf.utils.conf import load_ini_file
+from oasislmf.utils.exceptions import OasisException
+from oasislmf.utils.http import (
+    HTTP_REQUEST_CONTENT_TYPE_CSV,
+    HTTP_REQUEST_CONTENT_TYPE_JSON,
+    HTTP_RESPONSE_INTERNAL_SERVER_ERROR,
+    HTTP_RESPONSE_OK,
+    MIME_TYPE_JSON,
+)
+from oasislmf.utils.log import (
+    oasis_log,
+    read_log_config,
 )
 
-from .utils import (
+
+from utils import (
     get_keys_lookup_instance,
 )
 
@@ -51,7 +67,7 @@ COMPRESS_RESPONSE = False
 
 
 # App initialisation
-@oasis_log_utils.oasis_log()
+@oasis_log()
 def init():
     """
     App initialisation.
@@ -76,11 +92,11 @@ def init():
     APP = Flask(__name__)
 
     # Load INI file into config params dict
-    CONFIG_PARSER = oasis_sys_utils.load_ini_file(KEYS_SERVER_INI_FILE)
+    CONFIG_PARSER = load_ini_file(KEYS_SERVER_INI_FILE)
     CONFIG_PARSER['LOG_FILE'] = CONFIG_PARSER['LOG_FILE'].replace('%LOG_DIRECTORY%', CONFIG_PARSER['LOG_DIRECTORY'])
 
     # Logging configuration
-    oasis_log_utils.read_log_config(CONFIG_PARSER)
+    read_log_config(CONFIG_PARSER)
 
     logger = logging.getLogger('Starting rotating log.')
     logger.info("Starting keys service.")
@@ -125,7 +141,7 @@ except Exception as e:
         logger.exception(str(e))
 
 
-@oasis_log_utils.oasis_log()
+@oasis_log()
 @APP.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/healthcheck', methods=['GET'])
 def healthcheck():
     """
@@ -134,7 +150,7 @@ def healthcheck():
     return "OK"
 
 
-@oasis_log_utils.oasis_log()
+@oasis_log()
 @APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/get_keys', methods=['POST'])
 def get_keys():
     """
@@ -149,8 +165,8 @@ def get_keys():
             raise OasisException('Error: keys request is missing the "Content-Type" header')
         else:
             if content_type not in [
-                oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV,
-                oasis_utils.HTTP_REQUEST_CONTENT_TYPE_JSON
+                HTTP_REQUEST_CONTENT_TYPE_CSV,
+                HTTP_REQUEST_CONTENT_TYPE_JSON
             ]:
                 raise OasisException('Error: unsupported content type: "{}"'.format(content_type))
 
@@ -166,13 +182,8 @@ def get_keys():
             else request.data.decode('utf-8')
         )
 
-        mime_type = (
-            oasis_utils.MIME_TYPE_CSV if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
-            else oasis_utils.MIME_TYPE_JSON
-        )
-
         loc_df = (
-            pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV
+            pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
             else pd.read_json(io.StringIO(loc_data))
         )
         loc_df = loc_df.where(loc_df.notnull(), None)
@@ -192,10 +203,10 @@ def get_keys():
         res_data = json.dumps(data_dict).encode('utf8')
 
         if COMPRESS_RESPONSE:
-            res_data = oasis_sys_utils.compress_data(res_data)
+            res_data = compress_data(res_data)
 
         response = Response(
-            res_data, status=oasis_utils.HTTP_RESPONSE_OK, mimetype=oasis_utils.MIME_TYPE_JSON
+            res_data, status=HTTP_RESPONSE_OK, mimetype=MIME_TYPE_JSON
         )
 
         if COMPRESS_RESPONSE:
@@ -204,7 +215,7 @@ def get_keys():
     except Exception as e:
         logger.error("Error: {}.".format(str(e)))
         response = Response(
-            status=oasis_utils.HTTP_RESPONSE_INTERNAL_SERVER_ERROR
+            status=HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
     finally:
         return response
