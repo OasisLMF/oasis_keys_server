@@ -39,7 +39,6 @@ from oasislmf.utils.log import (
     read_log_config,
 )
 
-
 from utils import (
     get_keys_lookup_instance,
 )
