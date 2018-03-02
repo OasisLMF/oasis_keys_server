@@ -86,10 +86,11 @@
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">)))</span>
 
-<span class="kn">from</span> <span class="nn">oasis_utils</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">load_ini_file</span><span class="p">,</span>
-    <span class="n">OasisException</span><span class="p">,</span>
-    <span class="n">oasis_utils</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">oasislmf.utils.exceptions</span> <span class="k">import</span> <span class="n">OasisException</span>
+<span class="kn">from</span> <span class="nn">oasislmf.utils.conf</span> <span class="k">import</span> <span class="n">load_ini_file</span>
+<span class="kn">from</span> <span class="nn">oasislmf.utils.http</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">HTTP_REQUEST_CONTENT_TYPE_CSV</span><span class="p">,</span>
+    <span class="n">HTTP_REQUEST_CONTENT_TYPE_JSON</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -141,7 +142,7 @@
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;Accept-Encoding&#39;</span><span class="p">:</span> <span class="s1">&#39;identity,deflate,gzip,compress&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">HTTP_REQUEST_CONTENT_TYPE_CSV</span><span class="p">,</span>
+            <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="n">HTTP_REQUEST_CONTENT_TYPE_CSV</span><span class="p">,</span>
             <span class="s1">&#39;Content-Length&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
         <span class="p">}</span>
 
@@ -216,7 +217,7 @@
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;Accept-Encoding&#39;</span><span class="p">:</span> <span class="s1">&#39;identity,deflate,gzip,compress&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="n">oasis_utils</span><span class="o">.</span><span class="n">HTTP_REQUEST_CONTENT_TYPE_JSON</span><span class="p">,</span>
+            <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="n">HTTP_REQUEST_CONTENT_TYPE_JSON</span><span class="p">,</span>
             <span class="s1">&#39;Content-Length&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
         <span class="p">}</span>
 
