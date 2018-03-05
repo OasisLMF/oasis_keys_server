@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -46,10 +45,11 @@ import requests
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir)))
 
-from oasis_utils import (
-    load_ini_file,
-    OasisException,
-    oasis_utils,
+from oasislmf.utils.exceptions import OasisException
+from oasislmf.utils.conf import load_ini_file
+from oasislmf.utils.http import (
+    HTTP_REQUEST_CONTENT_TYPE_CSV,
+    HTTP_REQUEST_CONTENT_TYPE_JSON,
 )
 
 
@@ -101,7 +101,7 @@ class KeysServerTests(unittest.TestCase):
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
-            'Content-Type': oasis_utils.HTTP_REQUEST_CONTENT_TYPE_CSV,
+            'Content-Type': HTTP_REQUEST_CONTENT_TYPE_CSV,
             'Content-Length': str(len(data))
         }
 
@@ -176,7 +176,7 @@ class KeysServerTests(unittest.TestCase):
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
-            'Content-Type': oasis_utils.HTTP_REQUEST_CONTENT_TYPE_JSON,
+            'Content-Type': HTTP_REQUEST_CONTENT_TYPE_JSON,
             'Content-Length': str(len(data))
         }
 

@@ -6,13 +6,12 @@ __all__ = [
 
 import keys_server
 
-from oasis_utils import (
-    OasisException,
-    oasis_log_utils,
-)
+from oasislmf.utils.exceptions import OasisException
+
+from oasislmf.utils.log import oasis_log
 
 # Initialise keys lookup service
-@oasis_log_utils.oasis_log()
+@oasis_log()
 def get_keys_lookup_instance(
     keys_data_directory,
     supplier_id,
