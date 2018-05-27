@@ -7,8 +7,8 @@ Currently handles compressed/uncompressed POSTed data.
 Processes the data sequentially - should be made multi-threaded.
 
 """
+# Standard libraries
 import csv
-import gzip
 import inspect
 import io
 import json
@@ -16,6 +16,11 @@ import logging
 import os
 import sys
 
+from gzip import zlib
+from tempfile import NamedTemporaryFile
+from zlib import error as ZlibError
+
+# Custom libraries
 import pandas as pd
 
 from flask import (
@@ -24,6 +29,9 @@ from flask import (
     Response,
 )
 
+from werkzeug.exceptions import HTTPException
+
+# Oasis libraries
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
@@ -39,6 +47,7 @@ from oasislmf.utils.log import (
     read_log_config,
 )
 
+# `oasis_keys_server` imports
 from utils import (
     get_keys_lookup_instance,
 )
@@ -170,7 +179,7 @@ def get_keys():
         logger.info("Processing locations.")
 
         loc_data = (
-            gzip.zlib.decompress(request.data).decode('utf-8') if is_gzipped
+            zlib.decompress(request.data).decode('utf-8') if is_gzipped
             else request.data.decode('utf-8')
         )
 
@@ -182,20 +191,23 @@ def get_keys():
         loc_df.columns = loc_df.columns.str.lower()
 
         lookup_results = []
-        for record in keys_lookup.process_locations(loc_df):
-            lookup_results.append(record)
+        res_str = ''
 
-        logger.info('### {} exposure records generated'.format(len(lookup_results)))
+        for r in keys_lookup.process_locations(loc_df):
+            lookup_results.append(r)
+            res_str += '{},'.format(json.dumps(r))
 
-        data_dict = {
-            "status": 'success',
-            "items": lookup_results
-        }
+        res_str = res_str.rstrip(',')
+        res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
 
-        res_data = json.dumps(data_dict).encode('utf8')
+        n = len(lookup_results)
+
+        logger.info('### {} exposure records generated'.format(n))
+
+        res_data = None
 
         if COMPRESS_RESPONSE:
-            res_data = compress_data(res_data)
+            res_data = compress_data(res_str)
 
         response = Response(
             res_data, status=HTTP_RESPONSE_OK, mimetype=MIME_TYPE_JSON
@@ -204,8 +216,8 @@ def get_keys():
         if COMPRESS_RESPONSE:
             response.headers['Content-Encoding'] = 'deflate'
             response.headers['Content-Length'] = str(len(res_data))
-    except Exception as e:
-        logger.error("Error: {}.".format(str(e)))
+    except (IndexError, HTTPException, IOError, KeyError, MemoryError, OasisException, OSError, TypeError, ValueError, ZlibError) as e:
+        logger.exception("Error: {}.".format(str(e)))
         response = Response(
             status=HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
