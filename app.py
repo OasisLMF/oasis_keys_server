@@ -190,17 +190,15 @@ def get_keys():
         loc_df = loc_df.where(loc_df.notnull(), None)
         loc_df.columns = loc_df.columns.str.lower()
 
-        lookup_results = []
         res_str = ''
 
+        n = 0
         for r in keys_lookup.process_locations(loc_df):
-            lookup_results.append(r)
+            n += 1
             res_str += '{},'.format(json.dumps(r))
 
         res_str = res_str.rstrip(',')
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
-
-        n = len(lookup_results)
 
         logger.info('### {} exposure records generated'.format(n))
 
