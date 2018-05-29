@@ -1,3 +1,2 @@
-oasislmf==1.0.5
 Flask==0.12
 pandas==0.19.2

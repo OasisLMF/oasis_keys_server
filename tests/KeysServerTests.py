@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 # -*- coding: utf-8 -*-
 
 """
@@ -126,15 +128,29 @@ class KeysServerTests(unittest.TestCase):
 
             self.assertEquals(type(result_dict['items']), list)
 
-            lookup_record_keys = {'id', 'peril_id', 'coverage', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
+            items = result_dict['items']
 
-            self.assertEquals(
-                all(
-                    type(r) == dict and set(r.keys()) == lookup_record_keys for r in result_dict['items']
-                ),
-                True
-            )
+            successes = [it for it in items if it['status'].lower() == 'success']
+            failures = [it for it in items if it['status'].lower() != 'success']
 
+            successful_lookup_record_keys = {'id', 'peril_id', 'coverage', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
+            failed_lookup_record_keys = {'id', 'peril_id', 'coverage', 'status', 'message'}
+
+            if successes:
+                self.assertEquals(
+                    all(
+                        type(r) == dict and set(str(k) for k in r) == successful_lookup_record_keys for r in successes
+                    ),
+                    True
+                )
+
+            if failures:
+                self.assertEquals(
+                    all(
+                        type(r) == dict and set(str(k) for k in r) == failed_lookup_record_keys for r in failures
+                    ),
+                    True
+                )
 
     def test_keys_request_csv__invalid_content_type(self):
 
@@ -201,14 +217,29 @@ class KeysServerTests(unittest.TestCase):
 
             self.assertEquals(type(result_dict['items']), list)
 
-            lookup_record_keys = {'id', 'peril_id', 'coverage', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
+            items = result_dict['items']
 
-            self.assertEquals(
-                all(
-                    type(r) == dict and set(r.keys()) == lookup_record_keys for r in result_dict['items']
-                ),
-                True
-            )
+            successes = [it for it in items if it['status'].lower() == 'success']
+            failures = [it for it in items if it['status'].lower() != 'success']
+
+            successful_lookup_record_keys = {'id', 'peril_id', 'coverage', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
+            failed_lookup_record_keys = {'id', 'peril_id', 'coverage', 'status', 'message'}
+
+            if successes:
+                self.assertEquals(
+                    all(
+                        type(r) == dict and set(str(k) for k in r) == successful_lookup_record_keys for r in successes
+                    ),
+                    True
+                )
+
+            if failures:
+                self.assertEquals(
+                    all(
+                        type(r) == dict and set(str(k) for k in r) == failed_lookup_record_keys for r in failures
+                    ),
+                    True
+                )
 
 
     def test_keys_request_json__invalid_content_type(self):
