@@ -195,7 +195,7 @@ def get_keys():
         n = 0
         for r in keys_lookup.process_locations(loc_df):
             n += 1
-            res_str += '{},'.format(json.dumps(r))
+            res_str = '{}{},'.format(res_str, json.dumps(r))
 
         res_str = res_str.rstrip(',')
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
