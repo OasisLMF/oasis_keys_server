@@ -1,0 +1,34 @@
+FROM coreoasis/oasis_base:latest
+
+RUN mkdir -p /var/www/oasis/oasis_keys_server && \
+    mkdir /var/oasis && \
+    mkdir /var/log/oasis && \
+    chown www-data:www-data /var/log/oasis && \
+    chmod 744 /var/log/oasis && \
+    touch /var/log/oasis/keys_server.log && \
+    chown www-data:www-data /var/log/oasis/keys_server.log && \
+    chmod 644 /var/log/oasis/keys_server.log
+
+COPY ./apache_config/apache2.conf /etc/apache2/
+COPY ./apache_config/oasis.conf /etc/apache2/sites-available/
+COPY ./apache_config/oasis.wsgi /var/www/oasis/
+
+COPY ./tests /var/www/oasis/oasis_keys_server/tests/
+COPY ["app.py", \
+      "__init__.py", \
+      "requirements.txt", \
+      "utils.py", \
+      "KeysServer.ini", \
+      "/var/www/oasis/oasis_keys_server/"]
+
+RUN pip install -r /var/www/oasis/oasis_keys_server/requirements.txt && \
+    pip install -r /var/www/oasis/oasis_keys_server/tests/requirements.txt
+    
+RUN a2dissite 000-default && \
+    a2ensite oasis.conf
+EXPOSE 5000
+
+COPY ./startup.sh  /usr/local/bin/
+RUN chmod +x /usr/local/bin/startup.sh
+
+ENTRYPOINT []
