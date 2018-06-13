@@ -32,6 +32,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 # Oasis libraries
+from oasislmf.keys.lookup import OasisKeysLookupFactory as oklf
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
@@ -54,17 +55,10 @@ from utils import (
 
 # Module-level variables (globals)
 APP = None
-KEYS_SERVER_INI_FILE = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), 'KeysServer.ini')
-CONFIG_PARSER = None
-logger = None
-KEYS_DATA_DIRECTORY = None
-MODEL_VERSION_FILE = None
-SUPPLIER = None
-MODEL_NAME = None
-MODEL_VERSION = None
-SERVICE_BASE_URL = None
+config = None
 keys_lookup = None
-COMPRESS_RESPONSE = False
+logger = None
+SERVICE_BASE_URL = None
 
 
 # App initialisation
@@ -74,16 +68,10 @@ def init():
     App initialisation.
     """
     global APP
-    global KEYS_SERVER_INI_FILE
-    global CONFIG_PARSER
-    global logger
-    global COMPRESS_RESPONSE
-    global KEYS_DATA_DIRECTORY
-    global MODEL_VERSION_FILE
-    global MODEL_NAME
-    global MODEL_VERSION
-    global SERVICE_BASE_URL
+    global config
     global keys_lookup
+    global logger
+    global SERVICE_BASE_URL
 
     # Enable utf8 encoding
     reload(sys)
@@ -93,45 +81,46 @@ def init():
     APP = Flask(__name__)
 
     # Load INI file into config params dict
-    CONFIG_PARSER = load_ini_file(KEYS_SERVER_INI_FILE)
-    CONFIG_PARSER['LOG_FILE'] = CONFIG_PARSER['LOG_FILE'].replace('%LOG_DIRECTORY%', CONFIG_PARSER['LOG_DIRECTORY'])
+    keys_server_ini_fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'KeysServer.ini')
+    config = load_ini_file(keys_server_ini_fp)
+    config['LOG_FILE'] = config['LOG_FILE'].replace('%LOG_DIRECTORY%', config['LOG_DIRECTORY'])
 
     # Logging configuration
-    read_log_config(CONFIG_PARSER)
+    read_log_config(config)
 
     logger = logging.getLogger('Starting rotating log.')
     logger.info("Starting keys service.")
 
-    # Get Gzip response and port settings
-    COMPRESS_RESPONSE = bool(CONFIG_PARSER['COMPRESS_RESPONSE'])
-
     # Check that the keys data directory exists
-    KEYS_DATA_DIRECTORY = CONFIG_PARSER['KEYS_DATA_DIRECTORY']
-    if not os.path.isdir(KEYS_DATA_DIRECTORY):
-        raise OasisException("Keys data directory not found: {}.".format(KEYS_DATA_DIRECTORY))
-    logger.info('Keys data directory: {}'.format(KEYS_DATA_DIRECTORY))
+    keys_data_path = config.get('KEYS_DATA_DIRECTORY') or '/var/oasis/keys_data'
+    if not os.path.exists(keys_data_path):
+        raise OasisException("Keys data directory not found: {}.".format(keys_data_path))
+    logger.info('Keys data directory: {}'.format(keys_data_path))
 
     # Check the model version file exists
-    MODEL_VERSION_FILE = os.path.join(KEYS_DATA_DIRECTORY, 'ModelVersion.csv')
-    if not os.path.exists(MODEL_VERSION_FILE):
-        raise OasisException("No model version file: {}.".format(MODEL_VERSION_FILE))
+    model_version_fp = os.path.join(keys_data_path, 'ModelVersion.csv')
+    if not os.path.exists(model_version_fp):
+        raise OasisException("No model version file: {}.".format(model_version_fp))
 
-    with io.open(MODEL_VERSION_FILE, 'r', encoding='utf-8') as f:
-        SUPPLIER, MODEL_NAME, MODEL_VERSION = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+    with io.open(model_version_fp, 'r', encoding='utf-8') as f:
+        supplier_id, model_id, model_version = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
         
-    logger.info("Supplier: {}.".format(SUPPLIER))
-    logger.info("Model name: {}.".format(MODEL_NAME))
-    logger.info("Model version: {}.".format(MODEL_VERSION))
+    logger.info("Supplier: {}.".format(supplier_id))
+    logger.info("Model ID: {}.".format(model_id))
+    logger.info("Model version: {}.".format(model_version))
 
     # Set the web service base URL
-    SERVICE_BASE_URL = '/{}/{}/{}'.format(SUPPLIER, MODEL_NAME, MODEL_VERSION)
+    SERVICE_BASE_URL = '/{}/{}/{}'.format(supplier_id, model_id, model_version)
 
-    # Creating the keys lookup instance
-    try:
-        keys_lookup = get_keys_lookup_instance(KEYS_DATA_DIRECTORY, SUPPLIER, MODEL_NAME, MODEL_VERSION)
-        logger.info("Loaded keys lookup service {}".format(keys_lookup))
-    except OasisException as e:
-        raise OasisException("Error in loading keys lookup service: {}.".format(str(e)))
+    # Check the lookup package path exists
+    lookup_package_name = config.get('LOOKUP_PACKAGE_NAME') or 'keys_server'
+    lookup_package_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), lookup_package_name)
+
+    if not os.path.exists(lookup_package_path):
+        raise OasisException('No lookup package path found - expected to be found at {}'.format(lookup_package_path))
+
+    # Instantiate the keys lookup class
+    _, keys_lookup = oklf.create(keys_data_path, model_version_fp, lookup_package_path)
 
 try:
     init()
@@ -204,14 +193,16 @@ def get_keys():
 
         res_data = None
 
-        if COMPRESS_RESPONSE:
+        compress_response = config.get('COMPRESS_RESPONSE') or True
+
+        if compress_response:
             res_data = compress_data(res_str)
 
         response = Response(
             res_data, status=HTTP_RESPONSE_OK, mimetype=MIME_TYPE_JSON
         )
 
-        if COMPRESS_RESPONSE:
+        if compress_response:
             response.headers['Content-Encoding'] = 'deflate'
             response.headers['Content-Length'] = str(len(res_data))
     except (IndexError, HTTPException, IOError, KeyError, MemoryError, OasisException, OSError, TypeError, ValueError, ZlibError) as e:
