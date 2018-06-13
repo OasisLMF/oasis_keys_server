@@ -48,11 +48,6 @@ from oasislmf.utils.log import (
     read_log_config,
 )
 
-# `oasis_keys_server` imports
-from utils import (
-    get_keys_lookup_instance,
-)
-
 # Module-level variables (globals)
 APP = None
 config = None
