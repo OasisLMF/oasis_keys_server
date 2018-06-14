@@ -1,5 +1,4 @@
 """
 Module initialiser.
 """
-from utils import *
-from app import APP
+from .app import APP
