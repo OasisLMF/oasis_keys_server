@@ -17,7 +17,6 @@ COPY ./tests /var/www/oasis/oasis_keys_server/tests/
 COPY ["app.py", \
       "__init__.py", \
       "requirements.txt", \
-      "utils.py", \
       "KeysServer.ini", \
       "/var/www/oasis/oasis_keys_server/"]
 
