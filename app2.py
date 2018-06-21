@@ -202,7 +202,7 @@ def get_keys():
         res_str = ''
 
         n = 0
-        for r in oasis_lookup.bulk_lookup(loc_df.iterrows()):
+        for r in oasis_lookup.bulk_lookup(loc for _, loc in loc_df.iterrows()):
             n += 1
             res_str = '{}{},'.format(res_str, json.dumps(r))
 
