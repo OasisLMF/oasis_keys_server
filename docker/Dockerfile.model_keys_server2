@@ -10,7 +10,7 @@ RUN mkdir -p /var/www/oasis/oasis_keys_server && \
     chmod 644 /var/log/oasis/keys_server.log
 
 COPY ./apache_config/apache2.conf /etc/apache2/
-COPY ./apache_config/oasis.conf /etc/apache2/sites-available/
+COPY ./apache_config/oasis2.conf /etc/apache2/sites-available/
 COPY ./apache_config/oasis2.wsgi /var/www/oasis/
 
 COPY ./tests /var/www/oasis/oasis_keys_server/tests/
@@ -20,8 +20,8 @@ COPY ["app2.py", \
       "KeysServer.ini", \
       "/var/www/oasis/oasis_keys_server/"]
 
-RUN pip install -r /var/www/oasis/oasis_keys_server/requirements.txt && \
-    pip install -r /var/www/oasis/oasis_keys_server/tests/requirements.txt
+RUN pip install --upgrade -r /var/www/oasis/oasis_keys_server/requirements.txt && \
+    pip install --upgrade -r /var/www/oasis/oasis_keys_server/tests/requirements.txt
 RUN a2dissite 000-default && \
     a2ensite oasis.conf
 EXPOSE 5000
