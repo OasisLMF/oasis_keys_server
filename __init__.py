@@ -2,4 +2,4 @@
 Module initialiser.
 """
 from .app import APP
-from .app import APP2
+from .app2 import APP2
