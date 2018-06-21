@@ -23,7 +23,7 @@ COPY ["app2.py", \
 RUN pip install --upgrade -r /var/www/oasis/oasis_keys_server/requirements.txt && \
     pip install --upgrade -r /var/www/oasis/oasis_keys_server/tests/requirements.txt
 RUN a2dissite 000-default && \
-    a2ensite oasis.conf
+    a2ensite oasis2.conf
 EXPOSE 5000
 
 COPY ./startup.sh  /usr/local/bin/
