@@ -94,7 +94,7 @@ def init():
 
     log_dir = config_parser.get('Default', 'LOG_DIRECTORY') or keys_data_path
     log_fname = (config_parser.get('Default', 'LOG_FILE_PATH') or 'keys_server.log').split(os.path.sep)[-1]
-    log_fp = os.path.join(log_dir, log_fp)
+    log_fp = os.path.join(log_dir, log_fname)
     config_parser.set('Default', 'LOG_FILE_PATH', log_fp)
 
     log_level = config_parser.get('Default', 'LOG_LEVEL') or logging.INFO
