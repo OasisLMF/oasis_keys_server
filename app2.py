@@ -15,10 +15,7 @@ import logging
 import os
 import sys
 
-try:
-     from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
+from configparser import ConfigParser
 
 from gzip import zlib
 from tempfile import NamedTemporaryFile
