@@ -134,6 +134,13 @@ def init():
     with io.open(lookup_config_fp, 'r', encoding='utf-8') as f:
         lookup_config = json.load(f)
 
+    lookup_config['vulnerability']['file_path'] = os.path.abspath(
+        lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+    )
+    lookup_config['peril']['rtree_index']['filename'] = os.path.abspath(
+        lookup_config['peril']['rtree_index']['filename'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+    )
+
     logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
     # Instantiate the keys lookup class
