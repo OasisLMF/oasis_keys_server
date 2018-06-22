@@ -135,7 +135,7 @@ def init():
     logger.info('\nLoading lookup config from file {}'.format(lookup_config_fp))
 
     with io.open(lookup_config_fp, 'r', encoding='utf-8') as f:
-        lookup_config = json.load(lookup_config_fp)
+        lookup_config = json.load(f)
 
     logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
