@@ -33,7 +33,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 # Oasis libraries
-from oasislmf.keys.lookup import OasisPerilAndVulnerabilityLookup
+from oasislmf.keys.lookup import OasisLookup
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
@@ -144,7 +144,7 @@ def init():
     logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
     # Instantiate the keys lookup class
-    oasis_lookup = OasisPerilAndVulnerabilityLookup(config=lookup_config)
+    oasis_lookup = OasisLookup(config=lookup_config)
 
 try:
     init()
