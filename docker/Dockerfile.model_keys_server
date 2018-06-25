@@ -14,8 +14,9 @@ COPY ./apache_config/oasis.conf /etc/apache2/sites-available/
 COPY ./apache_config/oasis.wsgi /var/www/oasis/
 
 COPY ./tests /var/www/oasis/oasis_keys_server/tests/
+COPY __init__.py.base /var/www/oasis/oasis_keys_server/__init__.py
+RUN echo "\nfrom .app import APP" >> /var/www/oasis/oasis_keys_server/__init__.py
 COPY ["app.py", \
-      "__init__.py", \
       "requirements.txt", \
       "KeysServer.ini", \
       "/var/www/oasis/oasis_keys_server/"]
