@@ -32,7 +32,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 # Oasis libraries
-from oasislmf.keys.lookup import OasisKeysLookupFactory as oklf
+from oasislmf.keys.lookup import OasisLookupFactory as oklf
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
