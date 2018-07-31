@@ -145,10 +145,6 @@ def init():
             lookup_config['peril']['rtree_index']['filename'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
         )
 
-        us = u'{}'.format(json.dumps(lookup_config, ensure_ascii=False, indent=4, sort_keys=True))
-        f.truncate(0)
-        f.write(us)
-
     logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
     # Instantiate the keys lookup class
