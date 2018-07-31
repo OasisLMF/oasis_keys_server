@@ -131,15 +131,23 @@ def init():
 
     logger.info('\nLoading lookup config from file {}'.format(lookup_config_fp))
 
-    with io.open(lookup_config_fp, 'r', encoding='utf-8') as f:
+    with io.open(lookup_config_fp, 'r+', encoding='utf-8') as f:
         lookup_config = json.load(f)
 
-    lookup_config['vulnerability']['file_path'] = os.path.abspath(
-        lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
-    )
-    lookup_config['peril']['rtree_index']['filename'] = os.path.abspath(
-        lookup_config['peril']['rtree_index']['filename'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
-    )
+        lookup_config['keys_data_path'] = keys_data_path
+        lookup_config['peril']['file_path'] = os.path.abspath(
+            lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+        lookup_config['vulnerability']['file_path'] = os.path.abspath(
+            lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+        lookup_config['peril']['rtree_index']['filename'] = os.path.abspath(
+            lookup_config['peril']['rtree_index']['filename'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+
+        us = u'{}'.format(json.dumps(lookup_config, ensure_ascii=False, indent=4, sort_keys=True))
+        f.truncate(0)
+        f.write(us)
 
     logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
