@@ -139,7 +139,7 @@ class KeysServerTests(unittest.TestCase):
             if successes:
                 self.assertEquals(
                     all(
-                        type(r) == dict and set(str(k) for k in r) == successful_lookup_record_keys for r in successes
+                        type(r) == dict and set(successful_lookup_record_keys) < set(r.keys()) for r in successes
                     ),
                     True
                 )
@@ -147,7 +147,7 @@ class KeysServerTests(unittest.TestCase):
             if failures:
                 self.assertEquals(
                     all(
-                        type(r) == dict and set(str(k) for k in r).issuperset(failed_lookup_record_keys) for r in failures
+                        type(r) == dict and set(r.keys()).issuperset(failed_lookup_record_keys) for r in failures
                     ),
                     True
                 )
