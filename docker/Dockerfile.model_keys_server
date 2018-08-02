@@ -13,10 +13,10 @@ COPY ./apache_config/apache2.conf /etc/apache2/
 COPY ./apache_config/oasis.conf /etc/apache2/sites-available/
 COPY ./apache_config/oasis.wsgi /var/www/oasis/
 
-COPY ./builtin/tests /var/www/oasis/oasis_keys_server/tests/
+COPY ./external/tests /var/www/oasis/oasis_keys_server/tests/
 COPY __init__.py.base /var/www/oasis/oasis_keys_server/__init__.py
 RUN echo "\nfrom .app import APP" >> /var/www/oasis/oasis_keys_server/__init__.py
-COPY ["./builtin/app.py", \
+COPY ["./external/app.py", \
       "requirements.txt", \
       "KeysServer.ini", \
       "/var/www/oasis/oasis_keys_server/"]
