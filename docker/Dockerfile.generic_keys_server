@@ -10,13 +10,13 @@ RUN mkdir -p /var/www/oasis/oasis_keys_server && \
     chmod 644 /var/log/oasis/keys_server.log
 
 COPY ./apache_config/apache2.conf /etc/apache2/
-COPY ./apache_config/oasis2.conf /etc/apache2/sites-available/
-COPY ./apache_config/oasis2.wsgi /var/www/oasis/
+COPY ./apache_config/oasis.conf /etc/apache2/sites-available/
+COPY ./apache_config/oasis.wsgi /var/www/oasis/
 
-COPY ./tests_2 /var/www/oasis/oasis_keys_server/tests/
+COPY ./generic/tests /var/www/oasis/oasis_keys_server/tests/
 COPY __init__.py.base /var/www/oasis/oasis_keys_server/__init__.py
-RUN echo "\nfrom .app2 import APP2" >> /var/www/oasis/oasis_keys_server/__init__.py
-COPY ["app2.py", \
+RUN echo "\nfrom .app import APP" >> /var/www/oasis/oasis_keys_server/__init__.py
+COPY ["./generic/app.py", \
       "requirements.txt", \
       "KeysServer.ini", \
       "/var/www/oasis/oasis_keys_server/"]
@@ -24,7 +24,7 @@ COPY ["app2.py", \
 RUN pip install --upgrade -r /var/www/oasis/oasis_keys_server/requirements.txt && \
     pip install --upgrade -r /var/www/oasis/oasis_keys_server/tests/requirements.txt
 RUN a2dissite 000-default && \
-    a2ensite oasis2.conf
+    a2ensite oasis.conf
 EXPOSE 5000
 
 COPY ./startup.sh  /usr/local/bin/

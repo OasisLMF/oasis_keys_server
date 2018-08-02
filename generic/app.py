@@ -48,7 +48,7 @@ from oasislmf.utils.http import (
 from oasislmf.utils.log import oasis_log
 
 # Module-level variables (globals)
-APP2 = None
+APP = None
 config_parser = None
 oasis_lookup = None
 logger = None
@@ -61,7 +61,7 @@ def init():
     """
     App initialisation.
     """
-    global APP2
+    global APP
     global config_parser
     global oasis_lookup
     global logger
@@ -72,7 +72,7 @@ def init():
     sys.setdefaultencoding('utf-8')
 
     # Get the Flask app
-    APP2 = Flask(__name__)
+    APP = Flask(__name__)
 
     # Create config_parser.parser and load with keys server INI file
     config_parser = ConfigParser()
@@ -160,7 +160,7 @@ except Exception as e:
 
 
 @oasis_log()
-@APP2.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/healthcheck', methods=['GET'])
+@APP.route('{}/healthcheck'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/healthcheck', methods=['GET'])
 def healthcheck():
     """
     Healthcheck response.
@@ -169,7 +169,7 @@ def healthcheck():
 
 
 @oasis_log()
-@APP2.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/get_keys', methods=['POST'])
+@APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/get_keys', methods=['POST'])
 def get_keys():
     """
     Do a lookup on posted location data.
@@ -243,4 +243,4 @@ def get_keys():
 
 
 if __name__ == '__main__':
-    APP2.run(debug=True, host='0.0.0.0', port=5000)
+    APP.run(debug=True, host='0.0.0.0', port=5000)

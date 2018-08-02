@@ -5,6 +5,13 @@
 Flask app used to implement Oasis model keys servers.
 Includes the `oasis_keys_lookup` subpackage containing base classes that as serve as templates/interfaces for model keys lookup classes.
 
+# Varients 
+
+* Generic - A built-in generic lookup that combines a peril lookup which uses Rtree spatial indexes and a vulnerability lookup which uses a simple key-value approach using dictionaries.
+
+* External - A lookup service which is tailored to a model, based on a custom python based lookup class. 
+
+
 # First Steps
 
 After cloning the repository (see the GitHub instructions on repository home page) and entering the repository folder you should install the package requirements using
