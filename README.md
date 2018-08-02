@@ -7,8 +7,9 @@ Includes the `oasis_keys_lookup` subpackage containing base classes that as serv
 
 # Varients 
 
-* Generic - RTree based,  
-* Builtin - Python Class based 
+* Generic - A built-in generic lookup that combines a peril lookup which uses Rtree spatial indexes and a vulnerability lookup which uses a simple key-value approach using dictionaries.
+
+* External - A lookup service which is tailored to a model, based on a custom python based lookup class. 
 
 
 # First Steps
