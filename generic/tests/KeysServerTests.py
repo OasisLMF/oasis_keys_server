@@ -133,8 +133,8 @@ class KeysServerTests(unittest.TestCase):
             successes = [it for it in items if it['status'].lower() == 'success']
             failures = [it for it in items if it['status'].lower() != 'success']
 
-            successful_lookup_record_keys = {'status', 'peril_id', 'area_peril_id', 'coverage_type', 'class_1', 'message', 'id', 'vulnerability_id'} 
-            failed_lookup_record_keys = {'id', 'peril_id', 'coverage', 'status', 'message'}
+            successful_lookup_record_keys = {'status', 'peril_id', 'area_peril_id', 'coverage_type', 'message', 'id', 'vulnerability_id'} 
+            failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
             if successes:
                 self.assertEquals(
