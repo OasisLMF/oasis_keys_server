@@ -134,7 +134,7 @@ class KeysServerTests(unittest.TestCase):
             failures = [it for it in items if it['status'].lower() != 'success']
 
             successful_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
-            failed_lookup_record_keys = {'id', 'peril_id', 'coverage', 'status', 'message'}
+            failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
             if successes:
                 self.assertEquals(
@@ -147,7 +147,7 @@ class KeysServerTests(unittest.TestCase):
             if failures:
                 self.assertEquals(
                     all(
-                        type(r) == dict and set(r.keys()).issuperset(failed_lookup_record_keys) for r in failures
+                        type(r) == dict and set(failed_lookup_record_keys) < set(r.keys()) for r in failures
                     ),
                     True
                 )
