@@ -1,4 +1,4 @@
-oasislmf
+oasislmf==1.1.23
 configparser==3.5.0
 Flask==0.12
 pandas==0.19.2
