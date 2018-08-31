@@ -9,12 +9,13 @@ Processes the data sequentially - should be made multi-threaded.
 """
 # Standard libraries
 import csv
-import inspect
 import io
 import json
 import logging
 import os
 import sys
+
+from configparser import ConfigParser
 
 from gzip import zlib
 from tempfile import NamedTemporaryFile
@@ -32,10 +33,11 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 # Oasis libraries
-from oasislmf.keys.lookup import OasisLookupFactory as oklf
+from oasislmf.keys.lookup import OasisLookup
 from oasislmf.utils.compress import compress_data
 from oasislmf.utils.conf import load_ini_file
 from oasislmf.utils.exceptions import OasisException
+from oasislmf.utils.log import set_rotating_logger
 from oasislmf.utils.http import (
     HTTP_REQUEST_CONTENT_TYPE_CSV,
     HTTP_REQUEST_CONTENT_TYPE_JSON,
@@ -43,15 +45,12 @@ from oasislmf.utils.http import (
     HTTP_RESPONSE_OK,
     MIME_TYPE_JSON,
 )
-from oasislmf.utils.log import (
-    oasis_log,
-    read_log_config,
-)
+from oasislmf.utils.log import oasis_log
 
 # Module-level variables (globals)
 APP = None
-config = None
-keys_lookup = None
+config_parser = None
+oasis_lookup = None
 logger = None
 SERVICE_BASE_URL = None
 
@@ -63,8 +62,8 @@ def init():
     App initialisation.
     """
     global APP
-    global config
-    global keys_lookup
+    global config_parser
+    global oasis_lookup
     global logger
     global SERVICE_BASE_URL
 
@@ -75,22 +74,37 @@ def init():
     # Get the Flask app
     APP = Flask(__name__)
 
-    # Load INI file into config params dict
-    keys_server_ini_fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'KeysServer.ini')
-    config = load_ini_file(keys_server_ini_fp)
-    config['LOG_FILE'] = config['LOG_FILE'].replace('%LOG_DIRECTORY%', config['LOG_DIRECTORY'])
+    # Create config_parser.parser and load with keys server INI file
+    config_parser = ConfigParser()
+    cwd = os.path.dirname(__file__)
 
-    # Logging configuration
-    read_log_config(config)
+    keys_server_ini_fp = os.path.join(cwd, 'KeysServer.ini')
+    if not os.path.exists(keys_server_ini_fp):
+        raise OasisException('No `KeysServer.ini` file found in app directory')
 
-    logger = logging.getLogger('Starting rotating log.')
-    logger.info("Starting keys service.")
+    config_parser.read(keys_server_ini_fp)
 
     # Check that the keys data directory exists
-    keys_data_path = config.get('KEYS_DATA_DIRECTORY') or '/var/oasis/keys_data'
+    keys_data_path = config_parser.get('Lookup', 'KEYS_DATA_PATH') or '/var/oasis/keys_data'
     if not os.path.exists(keys_data_path):
         raise OasisException("Keys data directory not found: {}.".format(keys_data_path))
-    logger.info('Keys data directory: {}'.format(keys_data_path))
+
+    log_dir = config_parser.get('Default', 'LOG_DIRECTORY') or keys_data_path
+    log_fname = (config_parser.get('Default', 'LOG_FILE_PATH') or 'keys_server.log').split(os.path.sep)[-1]
+    log_fp = os.path.join(log_dir, log_fname)
+    config_parser.set('Default', 'LOG_FILE_PATH', log_fp)
+
+    log_level = config_parser.get('Default', 'LOG_LEVEL') or logging.INFO
+    max_file_size = config_parser.getint('Default', 'LOG_MAX_SIZE_IN_BYTES') or 10**7
+    max_backups = config_parser.getint('Default', 'LOG_BACKUP_COUNT') or 5
+
+    # Logging configuration
+    set_rotating_logger(log_fp, log_level, max_file_size, max_backups)
+
+    logger = logging.getLogger('\nStarting rotating log.')
+    logger.info("\nStarting keys service.")
+
+    logger.info('\nKeys data path: {}'.format(keys_data_path))
 
     # Check the model version file exists
     model_version_fp = os.path.join(keys_data_path, 'ModelVersion.csv')
@@ -100,22 +114,41 @@ def init():
     with io.open(model_version_fp, 'r', encoding='utf-8') as f:
         supplier_id, model_id, model_version = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
         
-    logger.info("Supplier: {}.".format(supplier_id))
+    logger.info("\nSupplier: {}.".format(supplier_id))
     logger.info("Model ID: {}.".format(model_id))
     logger.info("Model version: {}.".format(model_version))
 
     # Set the web service base URL
     SERVICE_BASE_URL = '/{}/{}/{}'.format(supplier_id, model_id, model_version)
 
-    # Check the lookup package path exists
-    lookup_package_name = config.get('LOOKUP_PACKAGE_NAME') or 'keys_server'
-    lookup_package_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), lookup_package_name)
+    # Check the lookup config JSON file exists in the keys data
+    lookup_config_fp = config_parser.get('Lookup', 'CONFIG_FILE_PATH').replace('%KEYS_DATA_PATH%', keys_data_path)
 
-    if not os.path.exists(lookup_package_path):
-        raise OasisException('No lookup package path found - expected to be found at {}'.format(lookup_package_path))
+    if not os.path.exists(lookup_config_fp):
+        raise OasisException('No lookup config file {} found in the keys data directory'.format(lookup_config_fp))
+
+    config_parser.set('Lookup', 'CONFIG_FILE_PATH', lookup_config_fp)
+
+    logger.info('\nLoading lookup config from file {}'.format(lookup_config_fp))
+
+    with io.open(lookup_config_fp, 'r+', encoding='utf-8') as f:
+        lookup_config = json.load(f)
+
+        lookup_config['keys_data_path'] = keys_data_path
+        lookup_config['peril']['file_path'] = os.path.abspath(
+            lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+        lookup_config['vulnerability']['file_path'] = os.path.abspath(
+            lookup_config['vulnerability']['file_path'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+        lookup_config['peril']['rtree_index']['filename'] = os.path.abspath(
+            lookup_config['peril']['rtree_index']['filename'].replace('%%KEYS_DATA_PATH%%', keys_data_path)
+        )
+
+    logger.info('\nLoaded lookup config: {}'.format(lookup_config))
 
     # Instantiate the keys lookup class
-    _, keys_lookup = oklf.create(keys_data_path, model_version_fp, lookup_package_path)
+    oasis_lookup = OasisLookup(config=lookup_config)
 
 try:
     init()
@@ -167,17 +200,21 @@ def get_keys():
             else request.data.decode('utf-8')
         )
 
-        loc_df = (
-            pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
-            else pd.read_json(io.StringIO(loc_data))
-        )
+        try:
+            loc_df = (
+                pd.read_csv(io.StringIO(loc_data), dtype='object', float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
+                else pd.read_json(io.StringIO(loc_data))
+            )
+        except pd.errors.EmptyDataError as e:
+            raise OasisException(e)
+
         loc_df = loc_df.where(loc_df.notnull(), None)
         loc_df.columns = loc_df.columns.str.lower()
 
         res_str = ''
 
         n = 0
-        for r in keys_lookup.process_locations(loc_df):
+        for r in oasis_lookup.bulk_lookup(loc for _, loc in loc_df.iterrows()):
             n += 1
             res_str = '{}{},'.format(res_str, json.dumps(r))
 
@@ -188,7 +225,7 @@ def get_keys():
 
         res_data = None
 
-        compress_response = config.get('COMPRESS_RESPONSE') or True
+        compress_response = config_parser.getboolean('Default', 'COMPRESS_RESPONSE') or True
 
         if compress_response:
             res_data = compress_data(res_str)
