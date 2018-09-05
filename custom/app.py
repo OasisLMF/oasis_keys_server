@@ -168,10 +168,17 @@ def get_keys():
         )
 
         try:
-            loc_df = (
-                pd.read_csv(io.StringIO(loc_data), dtype='object', float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
-                else pd.read_json(io.StringIO(loc_data))
-            )
+            config.setdefault('LOC_PANDAS_DF_OBJECT_DTYPE', False)
+            if config['LOC_PANDAS_DF_OBJECT_DTYPE']:
+                loc_df = (
+                    pd.read_csv(io.StringIO(loc_data), dtype='object', float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
+                    else pd.read_json(io.StringIO(loc_data))
+                )
+            else:
+                loc_df = (
+                    pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
+                    else pd.read_json(io.StringIO(loc_data))
+                )
         except pd.errors.EmptyDataError as e:
             raise OasisException(e)
 
