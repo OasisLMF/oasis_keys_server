@@ -91,7 +91,8 @@ class KeysServerTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
         # Check that the healthcheck returned the 'OK' string
-        self.assertEqual(msg.decode(), 'OK')
+        msg = res.content.strip().decode()
+        self.assertEqual(msg, 'OK')
 
 
     def test_keys_request_csv(self):
@@ -119,13 +120,13 @@ class KeysServerTests(unittest.TestCase):
         except ValueError:
             self.assertIsNotNone(result_dict)
         else:
-            self.assertEquals(set(result_dict.keys()), {'status', 'items'})
+            self.assertEqual(set(result_dict.keys()), {'status', 'items'})
 
             self.assertTrue(isinstance(result_dict['status'], six.string_types))
 
-            self.assertEquals(result_dict['status'].lower(), 'success')
+            self.assertEqual(result_dict['status'].lower(), 'success')
 
-            self.assertEquals(type(result_dict['items']), list)
+            self.assertEqual(type(result_dict['items']), list)
 
             items = result_dict['items']
 
@@ -136,7 +137,7 @@ class KeysServerTests(unittest.TestCase):
             failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
             if successes:
-                self.assertEquals(
+                self.assertEqual(
                     all(
                          type(r) == dict and successful_lookup_record_keys <= set(r.keys()) for r in successes
                     ),
@@ -144,7 +145,7 @@ class KeysServerTests(unittest.TestCase):
                 )
 
             if failures:
-                self.assertEquals(
+                self.assertEqual(
                     all(
                         type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures
                     ),
@@ -208,13 +209,13 @@ class KeysServerTests(unittest.TestCase):
         except ValueError:
             self.assertIsNotNone(result_dict)
         else:
-            self.assertEquals(set(result_dict.keys()), {'status', 'items'})
+            self.assertEqual(set(result_dict.keys()), {'status', 'items'})
 
             self.assertTrue(isinstance(result_dict['status'], six.string_types))
 
-            self.assertEquals(result_dict['status'].lower(), 'success')
+            self.assertEqual(result_dict['status'].lower(), 'success')
 
-            self.assertEquals(type(result_dict['items']), list)
+            self.assertEqual(type(result_dict['items']), list)
 
             items = result_dict['items']
 
@@ -226,7 +227,7 @@ class KeysServerTests(unittest.TestCase):
             failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
             if successes:
-                self.assertEquals(
+                self.assertEqual(
                     all(
                          type(r) == dict and set(successful_lookup_record_keys) <= set(r.keys()) for r in successes
                     ),
@@ -234,7 +235,7 @@ class KeysServerTests(unittest.TestCase):
                 )
 
             if failures:
-                self.assertEquals(
+                self.assertEqual(
                     all(
                         type(r) == dict and set(failed_lookup_record_keys) <= set(r.keys()) for r in failures
                     ),
