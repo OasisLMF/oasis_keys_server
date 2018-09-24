@@ -64,7 +64,7 @@ class KeysServerTests(unittest.TestCase):
         TEST_CONFIG = load_ini_file('KeysServerTests.ini')
 
         with io.open(os.path.abspath(TEST_CONFIG['MODEL_VERSION_FILE_PATH']), 'r', encoding='utf-8') as f:
-            self.supplier_id, self.model_id, self.model_version = f.read().split(',')
+            self.supplier_id, self.model_id, self.model_version = f.read().strip().split(',')
 
         self.keys_server_hostname_or_ip = TEST_CONFIG['KEYS_SERVER_HOSTNAME_OR_IP']
 
@@ -91,7 +91,7 @@ class KeysServerTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
         # Check that the healthcheck returned the 'OK' string
-        msg = res.content.strip()
+        msg = str(res.content.strip())
         self.assertEqual(msg, 'OK')
 
 
@@ -99,7 +99,7 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
-            data = f.read().decode()
+            data = u'{}'.format(f.read().strip())
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
@@ -156,7 +156,7 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
-            data = f.read().decode()
+            data = u'{}'.format(f.read().strip())
 
         # test for unrecognised content type header
         headers = {
@@ -188,7 +188,7 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
-            data = f.read().decode()
+            data = u'{}'.format(f.read().strip())
 
         headers = {
             'Accept-Encoding': 'identity,deflate,gzip,compress',
@@ -247,7 +247,7 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
-            data = f.read().decode()
+            data = u'{}'.format(f.read().strip())
 
         # test for unrecognised content type header
         headers = {
