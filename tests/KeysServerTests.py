@@ -64,7 +64,7 @@ class KeysServerTests(unittest.TestCase):
         TEST_CONFIG = load_ini_file('KeysServerTests.ini')
 
         with io.open(os.path.abspath(TEST_CONFIG['MODEL_VERSION_FILE_PATH']), 'r', encoding='utf-8') as f:
-            self.supplier_id, self.model_id, self.model_version = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+            self.supplier_id, self.model_id, self.model_version = f.read().split(',')
 
         self.keys_server_hostname_or_ip = TEST_CONFIG['KEYS_SERVER_HOSTNAME_OR_IP']
 
