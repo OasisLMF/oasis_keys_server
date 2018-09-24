@@ -36,10 +36,10 @@ Integration tests for a model keys server.
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import csv
 import io
 import json
 import os
+import six
 import sys
 import unittest
 
@@ -91,8 +91,7 @@ class KeysServerTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
         # Check that the healthcheck returned the 'OK' string
-        msg = str(res.content.strip())
-        self.assertEqual(msg, 'OK')
+        self.assertEqual(msg.decode(), 'OK')
 
 
     def test_keys_request_csv(self):
@@ -122,7 +121,7 @@ class KeysServerTests(unittest.TestCase):
         else:
             self.assertEquals(set(result_dict.keys()), {'status', 'items'})
 
-            self.assertIn(type(result_dict['status']), [str, unicode])
+            self.assertTrue(isinstance(result_dict['status'], six.string_types))
 
             self.assertEquals(result_dict['status'].lower(), 'success')
 
@@ -211,7 +210,7 @@ class KeysServerTests(unittest.TestCase):
         else:
             self.assertEquals(set(result_dict.keys()), {'status', 'items'})
 
-            self.assertIn(type(result_dict['status']), [str, unicode])
+            self.assertTrue(isinstance(result_dict['status'], six.string_types))
 
             self.assertEquals(result_dict['status'].lower(), 'success')
 
