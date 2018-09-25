@@ -112,7 +112,7 @@ def init():
         raise OasisException("No model version file: {}.".format(model_version_fp))
 
     with io.open(model_version_fp, 'r', encoding='utf-8') as f:
-        supplier_id, model_id, model_version = map(lambda s: s.strip(), map(tuple, csv.reader(f))[0])
+        supplier_id, model_id, model_version = f.read().strip().split(',')
         
     logger.info("\nSupplier: {}.".format(supplier_id))
     logger.info("Model ID: {}.".format(model_id))
