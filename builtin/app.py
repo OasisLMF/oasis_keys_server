@@ -213,15 +213,13 @@ def get_keys():
 
         res_str = ''
 
-        n = 0
-        for r in oasis_lookup.bulk_lookup(loc for _, loc in loc_df.iterrows()):
-            n += 1
+        for i, r in enumerate(oasis_lookup.bulk_lookup(loc for _, loc in loc_df.iterrows())):
             res_str = '{}{},'.format(res_str, json.dumps(r))
 
         res_str = res_str.rstrip(',')
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
 
-        logger.info('### {} exposure records generated'.format(n))
+        logger.info('### {} exposure records generated'.format(i + 1))
 
         res_data = None
 
