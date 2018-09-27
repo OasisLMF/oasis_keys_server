@@ -177,6 +177,7 @@ def get_keys():
     response = res_data = None
 
     try:
+        logging.info('Getting request content type ...')
         try:
             content_type = request.headers['Content-Type']
         except KeyError:
@@ -187,31 +188,39 @@ def get_keys():
                 HTTP_REQUEST_CONTENT_TYPE_JSON
             ]:
                 raise OasisException('Error: unsupported content type: "{}"'.format(content_type))
+        logging.info('OK: {}'.format(content_type))
 
+        logging.info('Checking whether the request content is compressed ...')
         try:
             is_gzipped = request.headers['Content-Encoding'] == 'gzip'
         except KeyError:
             is_gzipped = False
+        logging.info(is_gzipped)
 
-        logger.info("Processing locations.")
-
+        logging.info('Extracting request content ...')
         loc_data = (
             zlib.decompress(request.data).decode('utf-8') if is_gzipped
             else request.data.decode('utf-8')
         )
+        logging.info('OK')
 
+        logging.info('Loading model exposures into Pandas dataframe ...')
         try:
             loc_df = (
                 pd.read_csv(io.StringIO(loc_data), dtype='object', float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
                 else pd.read_json(io.StringIO(loc_data))
             )
         except pd.errors.EmptyDataError as e:
-            raise OasisException(e)
+            raise OasisException('Error: model exposures file is possibly empty or corrupted, could not load into Pandas dataframe: {}'.format(e))
 
         loc_df = loc_df.where(loc_df.notnull(), None)
         loc_df.columns = loc_df.columns.str.lower()
 
+        logging.info('OK')
+
         res_str = ''
+
+        logging.info('Calling model lookup {} to generate keys ...'.format(oasis_lookup.__class__))
 
         for i, r in enumerate(oasis_lookup.bulk_lookup(loc for _, loc in loc_df.iterrows())):
             res_str = '{}{},'.format(res_str, json.dumps(r))
@@ -219,28 +228,39 @@ def get_keys():
         res_str = res_str.rstrip(',')
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
 
-        logger.info('### {} exposure records generated'.format(i + 1))
+        logger.info('OK: ### {} exposure records generated'.format(i + 1))
 
         res_data = None
 
+        logging.info('Checking whether to compress keys records ...')
+
         compress_response = config_parser.getboolean('Default', 'COMPRESS_RESPONSE') or True
 
-        if compress_response:
-            res_data = compress_data(res_str)
+        logging.info(compress_response)
 
+        if compress_response:
+            logging.info('Compressing keys records ...')
+            res_data = compress_data(res_str)
+            logging.info('OK')
+
+        logging.info('Building keys response ...')
         response = Response(
             res_data, status=HTTP_RESPONSE_OK, mimetype=MIME_TYPE_JSON
         )
+        logging.info('OK')
 
         if compress_response:
+            logging.info('Setting content headers for compressed keys records in response ...')
             response.headers['Content-Encoding'] = 'deflate'
             response.headers['Content-Length'] = str(len(res_data))
+            logging.info('OK')
     except (IndexError, HTTPException, IOError, KeyError, MemoryError, OasisException, OSError, TypeError, ValueError, ZlibError) as e:
         logger.exception("Error: {}.".format(str(e)))
         response = Response(
             status=HTTP_RESPONSE_INTERNAL_SERVER_ERROR
         )
     finally:
+        logging.info('Returning keys response')
         return response
 
 
