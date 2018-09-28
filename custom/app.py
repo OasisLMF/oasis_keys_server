@@ -192,23 +192,21 @@ def get_keys():
 
         logging.info('OK')
 
-        res_str = ''
-
         logging.info('Calling model lookup {} to generate keys ...'.format(keys_lookup.__class__))
 
-        for i, r in enumerate(keys_lookup.process_locations(loc_df)):
-            res_str = '{}{},'.format(res_str, json.dumps(r))
-
+        res_str =  ''.join(['{},'.format(json.dumps(r)) for r in keys_lookup.process_locations(loc_df)])
         res_str = res_str.rstrip(',')
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
 
-        logger.info('OK: ### {} exposure records generated'.format(i + 1))
+        logger.info('OK')
 
         res_data = None
 
         logging.info('Checking whether to compress keys records ...')
 
         compress_response = config.get('COMPRESS_RESPONSE') or True
+
+        logging.info(compress_response)
 
         if compress_response:
             logging.info('Compressing keys records ...')
