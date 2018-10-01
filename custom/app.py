@@ -194,8 +194,7 @@ def get_keys():
 
         logging.info('Calling model lookup {} to generate keys ...'.format(keys_lookup.__class__))
 
-        res_str =  ''.join(['{},'.format(json.dumps(r)) for r in keys_lookup.process_locations(loc_df)])
-        res_str = res_str.rstrip(',')
+        res_str =  ','.join([json.dumps(r) for r in keys_lookup.process_locations(loc_df)])
         res_str = '{{"status":"success","items":[{}]}}'.format(''.join(res_str))
 
         logger.info('OK')
