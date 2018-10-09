@@ -199,8 +199,8 @@ def get_keys():
 
         logging.info('Extracting request content ...')
         loc_data = (
-            zlib.decompress(request.data).decode('utf-8') if is_gzipped
-            else request.data.decode('utf-8')
+            zlib.decompress(request.get_data()).decode('utf-8') if is_gzipped
+            else request.get_data(as_text=True)
         )
         logging.info('OK')
 

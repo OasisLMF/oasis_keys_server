@@ -1,4 +1,4 @@
 oasislmf
 configparser==3.5.0
-Flask==0.12.3
+Flask==1.0.2
 pandas==0.22.0
