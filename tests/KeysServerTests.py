@@ -78,7 +78,7 @@ class KeysServerTests(unittest.TestCase):
         path_output_dir    = TEST_CONFIG.get('OUTPUT_FILE_DIR')
         self.skip_invalid  = TEST_CONFIG.get('SKIP_INVALID_TESTS')
         self.model_exposures_csv  = os.path.abspath(path_modelloc_csv) if path_modelloc_csv else None
-        self.model_exposures_json = os.path.abspath(path_modelloc_json) if path_modelloc_csv else None
+        self.model_exposures_json = os.path.abspath(path_modelloc_json) if path_modelloc_json else None
         self.store_output_dir     = os.path.abspath(path_output_dir) if path_output_dir else None
 
     def test_healthcheck(self):
