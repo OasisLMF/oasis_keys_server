@@ -140,12 +140,11 @@ class KeysServerTests(unittest.TestCase):
                 failures_valid = all(type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures)
                 self.assertEqual(failures_valid, True)
 
-            # Store result dict for inspection 
+            # Store result dict for inspection
             if self.store_output_dir:
                 file_name = 'request_csv_result.json'
                 with io.open(os.path.join(self.store_output_dir, file_name) , 'w', encoding='utf-8') as f:
-                    f.write(json.dumps(result_dict))
-                
+                    f.write(json.dumps(result_dict, ensure_ascii=False, sort_keys=True, indent=4))
 
 
     def test_keys_request_csv__invalid_content_type(self):
@@ -228,11 +227,11 @@ class KeysServerTests(unittest.TestCase):
                 failures_valid = all(type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures)
                 self.assertEqual(failures_valid, True)
 
-            # Store result dict for inspection 
+            # Store result dict for inspection
             if self.store_output_dir:
                 file_name = 'request_json_result.json'
                 with io.open(os.path.join(self.store_output_dir, file_name) , 'w', encoding='utf-8') as f:
-                    f.write(json.dumps(result_dict))
+                    f.write(json.dumps(result_dict, ensure_ascii=False, sort_keys=True, indent=4))
 
 
     def test_keys_request_json__invalid_content_type(self):
