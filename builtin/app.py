@@ -207,7 +207,7 @@ def get_keys():
         logging.info('Loading model exposures into Pandas dataframe ...')
         try:
             loc_df = (
-                pd.read_csv(io.StringIO(loc_data), dtype='object', float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
+                pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
                 else pd.read_json(io.StringIO(loc_data))
             )
         except pd.errors.EmptyDataError as e:
