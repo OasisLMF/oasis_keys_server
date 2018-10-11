@@ -7,24 +7,24 @@ Integration tests for a model keys server.
 """
 
 # BSD 3-Clause License
-# 
+#
 # Copyright (c) 2017-2020, Oasis Loss Modelling Framework
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 # * Redistributions of source code must retain the above copyright notice, this
 #   list of conditions and the following disclaimer.
-# 
+#
 # * Redistributions in binary form must reproduce the above copyright notice,
 #   this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
-# 
+#
 # * Neither the name of the copyright holder nor the names of its
 #   contributors may be used to endorse or promote products derived from
 #   this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -56,20 +56,15 @@ from oasislmf.utils.http import (
 
 
 class KeysServerTests(unittest.TestCase):
-
-
     @classmethod
     def setUpClass(self):
 
+        # Required config settings
         TEST_CONFIG = load_ini_file('KeysServerTests.ini')
-
         with io.open(os.path.abspath(TEST_CONFIG['MODEL_VERSION_FILE_PATH']), 'r', encoding='utf-8') as f:
             self.supplier_id, self.model_id, self.model_version = f.read().strip().split(',')
-
         self.keys_server_hostname_or_ip = TEST_CONFIG['KEYS_SERVER_HOSTNAME_OR_IP']
-
         self.keys_server_port = TEST_CONFIG['KEYS_SERVER_PORT']
-
         self.keys_server_baseurl = 'http://{}:{}/{}/{}/{}'.format(
                                         self.keys_server_hostname_or_ip,
                                         self.keys_server_port,
@@ -77,17 +72,20 @@ class KeysServerTests(unittest.TestCase):
                                         self.model_id,
                                         self.model_version
                                     )
-
-        self.sample_csv_model_exposures_file_path = os.path.abspath(TEST_CONFIG['SAMPLE_CSV_MODEL_EXPOSURES_FILE_PATH'])
-        self.sample_json_model_exposures_file_path = os.path.abspath(TEST_CONFIG['SAMPLE_JSON_MODEL_EXPOSURES_FILE_PATH'])
-
+        # Optional config settings
+        path_modelloc_csv  = TEST_CONFIG.get('SAMPLE_CSV_MODEL_EXPOSURES_FILE_PATH')
+        path_modelloc_json = TEST_CONFIG.get('SAMPLE_JSON_MODEL_EXPOSURES_FILE_PATH')
+        path_output_dir    = TEST_CONFIG.get('OUTPUT_FILE_DIR')
+        self.skip_invalid  = TEST_CONFIG.get('SKIP_INVALID_TESTS')
+        self.model_exposures_csv  = os.path.abspath(path_modelloc_csv) if path_modelloc_csv else None
+        self.model_exposures_json = os.path.abspath(path_modelloc_json) if path_modelloc_json else None
+        self.store_output_dir     = os.path.abspath(path_output_dir) if path_output_dir else None
 
     def test_healthcheck(self):
-
         healthcheck_url = '{}/healthcheck'.format(self.keys_server_baseurl)
-        res = requests.get(healthcheck_url)
 
         # Check that the response has a 200 status code
+        res = requests.get(healthcheck_url)
         self.assertEqual(res.status_code, 200)
 
         # Check that the healthcheck returned the 'OK' string
@@ -96,9 +94,11 @@ class KeysServerTests(unittest.TestCase):
 
 
     def test_keys_request_csv(self):
+        if not self.model_exposures_csv:
+            self.skipTest("CSV exposure file path not given")
 
         data = None
-        with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
+        with io.open(self.model_exposures_csv, 'r', encoding='utf-8') as f:
             data = u'{}'.format(f.read().strip())
 
         headers = {
@@ -121,13 +121,9 @@ class KeysServerTests(unittest.TestCase):
             self.assertIsNotNone(result_dict)
         else:
             self.assertEqual(set(result_dict.keys()), {'status', 'items'})
-
             self.assertTrue(isinstance(result_dict['status'], six.string_types))
-
             self.assertEqual(result_dict['status'].lower(), 'success')
-
             self.assertEqual(type(result_dict['items']), list)
-
             items = result_dict['items']
 
             successes = [it for it in items if it['status'].lower() == 'success']
@@ -136,26 +132,27 @@ class KeysServerTests(unittest.TestCase):
             successful_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
             failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
+            # Check that result dict keys are valid
             if successes:
-                self.assertEqual(
-                    all(
-                         type(r) == dict and successful_lookup_record_keys <= set(r.keys()) for r in successes
-                    ),
-                    True
-                )
-
+                successes_valid = all(type(r) == dict and successful_lookup_record_keys <= set(r.keys()) for r in successes)
+                self.assertEqual(successes_valid, True)
             if failures:
-                self.assertEqual(
-                    all(
-                        type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures
-                    ),
-                    True
-                )
+                failures_valid = all(type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures)
+                self.assertEqual(failures_valid, True)
+
+            # Store result dict for inspection
+            if self.store_output_dir:
+                file_name = 'request_csv_result.json'
+                with io.open(os.path.join(self.store_output_dir, file_name) , 'w', encoding='utf-8') as f:
+                    f.write(json.dumps(result_dict, ensure_ascii=False, sort_keys=True, indent=4))
+
 
     def test_keys_request_csv__invalid_content_type(self):
+        if self.skip_invalid:
+            self.skipTest("Skip invalid flag set")
 
         data = None
-        with io.open(self.sample_csv_model_exposures_file_path, 'r', encoding='utf-8') as f:
+        with io.open(self.model_exposures_csv, 'r', encoding='utf-8') as f:
             data = u'{}'.format(f.read().strip())
 
         # test for unrecognised content type header
@@ -185,9 +182,11 @@ class KeysServerTests(unittest.TestCase):
 
 
     def test_keys_request_json(self):
+        if not self.model_exposures_json:
+            self.skipTest("JSON exposure file path not given")
 
         data = None
-        with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
+        with io.open(self.model_exposures_json, 'r', encoding='utf-8') as f:
             data = u'{}'.format(f.read().strip())
 
         headers = {
@@ -210,43 +209,37 @@ class KeysServerTests(unittest.TestCase):
             self.assertIsNotNone(result_dict)
         else:
             self.assertEqual(set(result_dict.keys()), {'status', 'items'})
-
             self.assertTrue(isinstance(result_dict['status'], six.string_types))
-
             self.assertEqual(result_dict['status'].lower(), 'success')
-
             self.assertEqual(type(result_dict['items']), list)
 
             items = result_dict['items']
-
             successes = [it for it in items if it['status'].lower() == 'success']
-
             failures = [it for it in items if it['status'].lower() != 'success']
-
             successful_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
             failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
 
+            # Check that result dict keys are valid
             if successes:
-                self.assertEqual(
-                    all(
-                         type(r) == dict and set(successful_lookup_record_keys) <= set(r.keys()) for r in successes
-                    ),
-                    True
-                )
-
+                successes_valid = all(type(r) == dict and successful_lookup_record_keys <= set(r.keys()) for r in successes)
+                self.assertEqual(successes_valid, True)
             if failures:
-                self.assertEqual(
-                    all(
-                        type(r) == dict and set(failed_lookup_record_keys) <= set(r.keys()) for r in failures
-                    ),
-                    True
-                )
+                failures_valid = all(type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures)
+                self.assertEqual(failures_valid, True)
+
+            # Store result dict for inspection
+            if self.store_output_dir:
+                file_name = 'request_json_result.json'
+                with io.open(os.path.join(self.store_output_dir, file_name) , 'w', encoding='utf-8') as f:
+                    f.write(json.dumps(result_dict, ensure_ascii=False, sort_keys=True, indent=4))
 
 
     def test_keys_request_json__invalid_content_type(self):
+        if self.skip_invalid:
+            self.skipTest("Skip invalid flag set")
 
         data = None
-        with io.open(self.sample_json_model_exposures_file_path, 'r', encoding='utf-8') as f:
+        with io.open(self.model_exposures_json, 'r', encoding='utf-8') as f:
             data = u'{}'.format(f.read().strip())
 
         # test for unrecognised content type header
