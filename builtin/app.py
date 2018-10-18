@@ -172,7 +172,7 @@ def healthcheck():
 @APP.route('{}/get_keys'.format(SERVICE_BASE_URL) if SERVICE_BASE_URL else '/get_keys', methods=['POST'])
 def get_keys():
     """
-    Do a lookup on posted location data.
+    Do a lookup on posted location data in CSV format
     """
     response = res_data = None
 
@@ -183,11 +183,8 @@ def get_keys():
         except KeyError:
             raise OasisException('Error: keys request is missing the "Content-Type" header')
         else:
-            if content_type not in [
-                HTTP_REQUEST_CONTENT_TYPE_CSV,
-                HTTP_REQUEST_CONTENT_TYPE_JSON
-            ]:
-                raise OasisException('Error: unsupported content type: "{}"'.format(content_type))
+            if content_type != HTTP_REQUEST_CONTENT_TYPE_CSV:
+                raise OasisException('Error: expected CSV content type but got "{}"'.format(content_type))
         logging.info('OK: {}'.format(content_type))
 
         logging.info('Checking whether the request content is compressed ...')
@@ -206,10 +203,7 @@ def get_keys():
 
         logging.info('Loading model exposures into Pandas dataframe ...')
         try:
-            loc_df = (
-                pd.read_csv(io.StringIO(loc_data), float_precision='high') if content_type == HTTP_REQUEST_CONTENT_TYPE_CSV
-                else pd.read_json(io.StringIO(loc_data))
-            )
+            loc_df = pd.read_csv(io.StringIO(loc_data), float_precision='high')
         except pd.errors.EmptyDataError as e:
             raise OasisException('Error: model exposures file is possibly empty or corrupted, could not load into Pandas dataframe: {}'.format(e))
 

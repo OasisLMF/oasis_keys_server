@@ -74,11 +74,11 @@ class KeysServerTests(unittest.TestCase):
                                     )
         # Optional config settings
         path_modelloc_csv  = TEST_CONFIG.get('SAMPLE_CSV_MODEL_EXPOSURES_FILE_PATH')
-        path_modelloc_json = TEST_CONFIG.get('SAMPLE_JSON_MODEL_EXPOSURES_FILE_PATH')
+        #path_modelloc_json = TEST_CONFIG.get('SAMPLE_JSON_MODEL_EXPOSURES_FILE_PATH')
         path_output_dir    = TEST_CONFIG.get('OUTPUT_FILE_DIR')
         self.skip_invalid  = TEST_CONFIG.get('SKIP_INVALID_TESTS')
         self.model_exposures_csv  = os.path.abspath(path_modelloc_csv) if path_modelloc_csv else None
-        self.model_exposures_json = os.path.abspath(path_modelloc_json) if path_modelloc_json else None
+        #self.model_exposures_json = os.path.abspath(path_modelloc_json) if path_modelloc_json else None
         self.store_output_dir     = os.path.abspath(path_output_dir) if path_output_dir else None
 
     def test_healthcheck(self):
@@ -153,93 +153,6 @@ class KeysServerTests(unittest.TestCase):
 
         data = None
         with io.open(self.model_exposures_csv, 'r', encoding='utf-8') as f:
-            data = u'{}'.format(f.read().strip())
-
-        # test for unrecognised content type header
-        headers = {
-            'Accept-Encoding': 'identity,deflate,gzip,compress',
-            'Content-Type': 'text/html; charset=utf-8',
-            'Content-Length': str(len(data))
-        }
-
-        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
-        res = requests.post(get_keys_url, headers=headers, data=data)
-
-        # Check that the response does not have a 200 status code
-        self.assertNotEqual(res.status_code, 200)
-
-        # test for missing content type header
-        headers = {
-            'Accept-Encoding': 'identity,deflate,gzip,compress',
-            'Content-Length': str(len(data))
-        }
-
-        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
-        res = requests.post(get_keys_url, headers=headers, data=data)
-
-        # Check that the response does not have a 200 status code
-        self.assertNotEqual(res.status_code, 200)
-
-
-    def test_keys_request_json(self):
-        if not self.model_exposures_json:
-            self.skipTest("JSON exposure file path not given")
-
-        data = None
-        with io.open(self.model_exposures_json, 'r', encoding='utf-8') as f:
-            data = u'{}'.format(f.read().strip())
-
-        headers = {
-            'Accept-Encoding': 'identity,deflate,gzip,compress',
-            'Content-Type': HTTP_REQUEST_CONTENT_TYPE_JSON,
-            'Content-Length': str(len(data))
-        }
-
-        get_keys_url = '{}/get_keys'.format(self.keys_server_baseurl)
-        res = requests.post(get_keys_url, headers=headers, data=data)
-
-        # Check that the response has a 200 status code
-        self.assertEqual(res.status_code, 200)
-
-        # Check that the response content is valid JSON and has valid content.
-        result_dict = None
-        try:
-            result_dict = json.loads(res.content)
-        except ValueError:
-            self.assertIsNotNone(result_dict)
-        else:
-            self.assertEqual(set(result_dict.keys()), {'status', 'items'})
-            self.assertTrue(isinstance(result_dict['status'], six.string_types))
-            self.assertEqual(result_dict['status'].lower(), 'success')
-            self.assertEqual(type(result_dict['items']), list)
-
-            items = result_dict['items']
-            successes = [it for it in items if it['status'].lower() == 'success']
-            failures = [it for it in items if it['status'].lower() != 'success']
-            successful_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'area_peril_id', 'vulnerability_id', 'status', 'message'}
-            failed_lookup_record_keys = {'id', 'peril_id', 'coverage_type', 'status', 'message'}
-
-            # Check that result dict keys are valid
-            if successes:
-                successes_valid = all(type(r) == dict and successful_lookup_record_keys <= set(r.keys()) for r in successes)
-                self.assertEqual(successes_valid, True)
-            if failures:
-                failures_valid = all(type(r) == dict and failed_lookup_record_keys <= set(r.keys()) for r in failures)
-                self.assertEqual(failures_valid, True)
-
-            # Store result dict for inspection
-            if self.store_output_dir:
-                file_name = 'request_json_result.json'
-                with io.open(os.path.join(self.store_output_dir, file_name) , 'w', encoding='utf-8') as f:
-                    f.write(json.dumps(result_dict, ensure_ascii=False, sort_keys=True, indent=4))
-
-
-    def test_keys_request_json__invalid_content_type(self):
-        if self.skip_invalid:
-            self.skipTest("Skip invalid flag set")
-
-        data = None
-        with io.open(self.model_exposures_json, 'r', encoding='utf-8') as f:
             data = u'{}'.format(f.read().strip())
 
         # test for unrecognised content type header
