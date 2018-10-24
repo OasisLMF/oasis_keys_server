@@ -45,6 +45,8 @@ import unittest
 
 import requests
 
+from configparser import ConfigParser
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir)))
 
 from oasislmf.utils.exceptions import OasisException
@@ -60,11 +62,14 @@ class KeysServerTests(unittest.TestCase):
     def setUpClass(self):
 
         # Required config settings
-        TEST_CONFIG = load_ini_file('KeysServerTests.ini')
-        with io.open(os.path.abspath(TEST_CONFIG['MODEL_VERSION_FILE_PATH']), 'r', encoding='utf-8') as f:
+        load_config = ConfigParser()
+        load_config.read(u'KeysServerTests.ini')
+        TEST_CONFIG = load_config['Default']
+
+        with io.open(os.path.abspath(TEST_CONFIG.get('MODEL_VERSION_FILE_PATH')), 'r', encoding='utf-8') as f:
             self.supplier_id, self.model_id, self.model_version = f.read().strip().split(',')
-        self.keys_server_hostname_or_ip = TEST_CONFIG['KEYS_SERVER_HOSTNAME_OR_IP']
-        self.keys_server_port = TEST_CONFIG['KEYS_SERVER_PORT']
+        self.keys_server_hostname_or_ip = TEST_CONFIG.get('KEYS_SERVER_HOSTNAME_OR_IP')
+        self.keys_server_port = TEST_CONFIG.get('KEYS_SERVER_PORT')
         self.keys_server_baseurl = 'http://{}:{}/{}/{}/{}'.format(
                                         self.keys_server_hostname_or_ip,
                                         self.keys_server_port,
